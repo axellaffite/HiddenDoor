@@ -1,10 +1,13 @@
 package com.ut3.hiddendoor
 
+import android.graphics.RectF
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import com.ut3.hiddendoor.game.GameLogic
 import com.ut3.hiddendoor.game.GameView
+import com.ut3.hiddendoor.game.drawable.Camera
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,6 +20,15 @@ class MainActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-        setContentView(GameView(this))
+        val gameView = GameView(this)
+        setContentView(gameView)
+
+        val camera = Camera(
+            screenPosition = RectF(100f,100f,300f,300f),
+            gamePosition = RectF(0f, 0f, 200f, 200f)
+        )
+
+        val logic = GameLogic(gameView, camera)
+        logic.start()
     }
 }
