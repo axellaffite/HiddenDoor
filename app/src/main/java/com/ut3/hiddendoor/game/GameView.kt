@@ -2,24 +2,41 @@ package com.ut3.hiddendoor.game
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.PorterDuff
+import android.graphics.Rect
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.ut3.hiddendoor.game.drawable.Drawable
+import com.ut3.hiddendoor.game.drawable.Camera
 
-class GameView(context: Context): SurfaceView(context), SurfaceHolder.Callback {
-    override fun surfaceCreated(holder: SurfaceHolder) = Unit
-    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) = Unit
-    override fun surfaceDestroyed(holder: SurfaceHolder) = Unit
+class GameView(context: Context): SurfaceView(context) {
+    private val drawingContext = DrawingContext()
 
-    fun clear() {
-        holder?.withLock { it.drawColor(0, PorterDuff.Mode.CLEAR) }
+    fun draw(paint: Paint = Paint(), block: DrawingContext.() -> Unit) {
+        holder?.withLock { canvas ->
+            drawingContext.use(paint, canvas, block)
+        }
     }
 
-    fun draw(drawable: Drawable) {
-        holder?.withLock { canvas ->
-            drawable.draw(canvas)
+    val rect get() = Rect(0, 0, width, height)
+
+    inner class DrawingContext {
+        private var paint: Paint = Paint()
+        private var canvas: Canvas = Canvas()
+
+        fun use(paint: Paint, canvas: Canvas, block: DrawingContext.() -> Unit) {
+            this.paint = paint
+            this.canvas = canvas
+            block()
         }
+
+        fun withCamera(camera: Camera, block: Camera.(Canvas, Paint) -> Unit) {
+            camera.draw(canvas, paint, block)
+        }
+
+        fun clear() = canvas.drawColor(0, PorterDuff.Mode.CLEAR)
+
+        fun fill(color: Int) = canvas.drawColor(color)
     }
 }
 

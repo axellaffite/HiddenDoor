@@ -12,12 +12,12 @@ idea {
 }
 
 android {
-    compileSdk 32
+    compileSdk 31
 
     defaultConfig {
         applicationId "com.ut3.hiddendoor"
         minSdk 27
-        targetSdk 32
+        targetSdk 31
         versionCode 1
         versionName "1.0"
 
