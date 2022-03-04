@@ -1,13 +1,12 @@
 package com.ut3.hiddendoor.game
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PorterDuff
-import android.graphics.Rect
+import android.graphics.*
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.View
 import com.ut3.hiddendoor.game.drawable.Camera
+import com.ut3.hiddendoor.game.drawable.Drawable
 
 class GameView(context: Context): SurfaceView(context) {
     private val drawingContext = DrawingContext()
@@ -37,6 +36,14 @@ class GameView(context: Context): SurfaceView(context) {
         fun clear() = canvas.drawColor(0, PorterDuff.Mode.CLEAR)
 
         fun fill(color: Int) = canvas.drawColor(color)
+
+        fun Canvas.draw(paint: Paint, drawable: Drawable) {
+            drawable.draw(RectF(0f, 0f, width.toFloat(), height.toFloat()), this, paint)
+        }
+
+        fun draw(drawable: Drawable) {
+            canvas.draw(paint, drawable)
+        }
     }
 }
 

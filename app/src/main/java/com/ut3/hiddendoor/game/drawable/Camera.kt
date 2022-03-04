@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.RectF
+import androidx.core.graphics.scaleMatrix
 import androidx.core.graphics.translationMatrix
 
 /**
@@ -15,6 +16,8 @@ import androidx.core.graphics.translationMatrix
  * @property gamePosition position of the camera in the game
  */
 class Camera(private val screenPosition: RectF, private val gamePosition: RectF) {
+
+    var zoom: Float = 1f
 
     constructor(other: Camera): this(
         screenPosition = RectF(other.screenPosition),
@@ -33,6 +36,10 @@ class Camera(private val screenPosition: RectF, private val gamePosition: RectF)
             )
         )
 
+        canvas.concat(
+            scaleMatrix(sx = zoom, sy = zoom)
+        )
+
         block(this, canvas, paint)
         canvas.restore()
     }
@@ -40,10 +47,6 @@ class Camera(private val screenPosition: RectF, private val gamePosition: RectF)
     fun Canvas.fill(color: Int) = drawColor(color)
 
     fun Canvas.clear() = drawColor(0, PorterDuff.Mode.CLEAR)
-
-    fun Canvas.draw(paint: Paint, drawable: Drawable) {
-        drawable.draw(gamePosition, this, paint)
-    }
 
     fun moveOnScreen(offsetX: Float = 0f, offsetY: Float = 0f) {
         screenPosition.offset(offsetX, offsetY)
