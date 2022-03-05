@@ -4,10 +4,32 @@ import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import com.ut3.hiddendoor.game.GameLogic
+import com.ut3.hiddendoor.game.logic.GameLogic
 import com.ut3.hiddendoor.game.GameView
 
 class MainActivity : AppCompatActivity() {
+
+    lateinit var logic: GameLogic
+
+//    override fun onPause() {
+//        if (this::logic.isInitialized) {
+//            logic.pause()
+//        }
+//
+//        super.onPause()
+//    }
+
+    override fun onRestart() {
+        super.onRestart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (this::logic.isInitialized) {
+            logic.start()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -22,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(gameView)
 
         gameView.post {
-            val logic = GameLogic(gameView)
+            logic = GameLogic(gameView)
             logic.start()
         }
     }
