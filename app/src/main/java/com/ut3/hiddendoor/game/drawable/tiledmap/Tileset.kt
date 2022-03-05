@@ -7,7 +7,7 @@ import com.ut3.hiddendoor.game.utils.Vector2i
 class Tileset(filename: String, private val chunkSize: Int, val tileSize: Int, context: Context) {
 
     val bitmap = context.resources.let { resources ->
-        val id = resources.getIdentifier("tileset", "drawable", context.packageName)
+        val id = resources.getIdentifier(filename, "drawable", context.packageName)
 
         BitmapFactory.decodeResource(resources, id, BitmapFactory.Options().apply { inScaled = false })
             ?: throw IllegalStateException("Unable to load tileset: ${filename}")

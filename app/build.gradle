@@ -13,6 +13,14 @@ idea {
 }
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\Axel\\Documents\\test.jks')
+            storePassword 'aaaaaaaa'
+            keyAlias 'key0'
+            keyPassword 'aaaaaaaa'
+        }
+    }
     compileSdk 31
 
     defaultConfig {
@@ -29,6 +37,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {

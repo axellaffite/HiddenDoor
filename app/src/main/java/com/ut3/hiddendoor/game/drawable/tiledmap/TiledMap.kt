@@ -8,17 +8,23 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.util.Log
 import androidx.annotation.RawRes
+import androidx.core.graphics.times
 import com.charleskorn.kaml.Yaml
 import com.ut3.hiddendoor.game.drawable.Drawable
 import com.ut3.hiddendoor.game.utils.Vector2i
 import com.ut3.hiddendoor.game.utils.toVector2f
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import java.lang.Integer.min
+import kotlin.math.ceil
 
-class TiledMap(private val data: TiledMapData, context: Context) : Drawable() {
-
-    private val layersOrder: Map<String, Int> =
-        data.layersOrder.mapIndexed { i, v -> v to i }.toMap()
+class TiledMap(
+    private val data: TiledMapData,
+    context: Context
+) : Drawable() {
 
     private data class Tile(
         val x: Int,
@@ -26,6 +32,8 @@ class TiledMap(private val data: TiledMapData, context: Context) : Drawable() {
         val tx: Int,
         val ty: Int
     )
+
+    val tileSize = data.tileSize
 
     private val tileset = Tileset(data.tileset, data.chunkSize, data.tileSize.toInt(), context)
 
@@ -43,18 +51,27 @@ class TiledMap(private val data: TiledMapData, context: Context) : Drawable() {
         res.mapValues { (_, layer) ->
             layer.flatMap { (y, lines) ->
                 lines.map { (x, chunk) ->
+                    // Chunk bounds in pixels
                     val top = y * data.chunkSize * data.tileSize
                     val left = x * data.chunkSize * data.tileSize
                     val bottom = top + data.chunkSize * data.tileSize
                     val right = left + data.chunkSize * data.tileSize
 
+                    // Maximum x index in the current chunk
+                    // (to avoid drawing issues on non-properly divided tilemap)
+                    // For example, in a tilemap with a width of 50 and a chunk size of 16,
+                    // the last chunk will have a width of 2.
+                    val width = min(data.chunkSize, (data.width - (x * data.chunkSize)))
+
                     Chunk(
                         vertices = chunk.flatMapIndexed { index, _ ->
-                            val topTile = top + (index / data.chunkSize * data.tileSize)
-                            val leftTile = left + (index % data.chunkSize * data.tileSize)
+                            // Current tile bounds in pixels
+                            val topTile = top + (index / width * data.tileSize)
+                            val leftTile = left + (index % width * data.tileSize)
                             val bottomTile = topTile + data.tileSize
                             val rightTile = leftTile + data.tileSize
 
+                            // Constructed as 2 triangles
                             listOf(
                                 // Upper left triangle
                                 leftTile, topTile,
@@ -67,6 +84,7 @@ class TiledMap(private val data: TiledMapData, context: Context) : Drawable() {
                             )
                         }.toFloatArray(),
                         textCoordinates = chunk.flatMap { tile ->
+                            // Texture coordinates
                             val position = Vector2i(x = tile.tx, y = tile.ty).toVector2f()
                             val leftTCoords = position.x * data.tileSize
                             val topTCoords = position.y * data.tileSize
@@ -92,39 +110,39 @@ class TiledMap(private val data: TiledMapData, context: Context) : Drawable() {
         }
     }
 
-    override val rect: RectF = RectF(0f, 0f, data.width * data.tileSize, data.height * data.tileSize)
+    private val collisions = data.collisions.chunked(data.width)
 
-    private fun drawBounds(bounds: RectF): Rect {
-        return Rect(
-            (bounds.left / data.chunkSize / data.tileSize).toInt(),
-            (bounds.top / data.chunkSize / data.tileSize).toInt(),
-            (bounds.right / data.chunkSize / data.tileSize).toInt(),
-            (bounds.bottom / data.chunkSize / data.tileSize).toInt()
-        )
+    override val rect: RectF = RectF(
+        0f,
+        0f,
+        data.width * data.tileSize,
+        data.height * data.tileSize
+    )
+
+    fun collisionTilesIntersecting(rect: RectF): List<Int> {
+        val coordinates = rect.times(1f / data.tileSize)
+        val left = coordinates.left.toInt()
+        val right = ceil(coordinates.right).toInt()
+        val top = coordinates.top.toInt()
+        val bottom = ceil(coordinates.bottom).toInt()
+
+        return (top until bottom).flatMap { y ->
+            (left until right).map { x ->
+                collisions.getOrNull(y)?.getOrNull(x)
+            }
+        }.filterNotNull()
     }
 
     override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {
-//        val drawBounds = drawBounds(bounds)
-//        for (y in drawBounds.top .. drawBounds.bottom) {
-//            for (x in drawBounds.left .. drawBounds.right) {
-//                for ((_, chunks) in layers) {
-//                    chunk
-//                }
-//            }
-//        }
-
-        var count = 0
-        var total = 0
-        for ((_, chunks) in layers) {
-            for (chunk in chunks) {
-                if (chunk.draw(bounds, surfaceHolder, paint)) {
-                    count ++
+        runBlocking {
+            layers.flatMap { (_, chunks) ->
+                chunks.map { chunk ->
+                    async {
+                        chunk.draw(bounds, surfaceHolder, paint)
+                    }
                 }
-                total ++
-            }
+            }.awaitAll()
         }
-
-        println("Drawn: $count / $total")
     }
 
 }
@@ -149,5 +167,8 @@ fun Context.loadTiledMap(@RawRes res: Int): TiledMap {
             throw it
         }
 
-    return TiledMap(Yaml.default.decodeFromString(content), this)
+    return TiledMap(
+        Yaml.default.decodeFromString(content),
+        this
+    )
 }
