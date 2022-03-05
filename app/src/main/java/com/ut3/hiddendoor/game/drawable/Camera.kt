@@ -4,7 +4,9 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.RectF
+import androidx.core.graphics.scaleMatrix
 import androidx.core.graphics.translationMatrix
+import com.ut3.hiddendoor.game.utils.Vector2f
 
 /**
  * Class that is used to efficiently display drawables.
@@ -16,14 +18,14 @@ import androidx.core.graphics.translationMatrix
  */
 class Camera(private val screenPosition: RectF, private val gamePosition: RectF) {
 
+    var zoom: Float = 1f
+
     constructor(other: Camera): this(
         screenPosition = RectF(other.screenPosition),
         gamePosition = RectF(other.gamePosition)
     )
 
     fun draw(canvas: Canvas, paint: Paint, block: Camera.(Canvas, Paint) -> Unit) {
-        // We need to save the canvas' state to draw with the current
-        //
         canvas.save()
         canvas.clipRect(screenPosition)
         canvas.concat(
@@ -31,6 +33,10 @@ class Camera(private val screenPosition: RectF, private val gamePosition: RectF)
                 -gamePosition.left + screenPosition.left,
                 -gamePosition.top + screenPosition.top
             )
+        )
+
+        canvas.concat(
+            scaleMatrix(sx = zoom, sy = zoom)
         )
 
         block(this, canvas, paint)
@@ -41,7 +47,7 @@ class Camera(private val screenPosition: RectF, private val gamePosition: RectF)
 
     fun Canvas.clear() = drawColor(0, PorterDuff.Mode.CLEAR)
 
-    fun Canvas.draw(paint: Paint, drawable: Drawable) {
+    fun Canvas.draw(drawable: Drawable, paint: Paint) {
         drawable.draw(gamePosition, this, paint)
     }
 
@@ -51,6 +57,13 @@ class Camera(private val screenPosition: RectF, private val gamePosition: RectF)
 
     fun moveInGame(offsetX: Float = 0f, offsetY: Float = 0f) {
         gamePosition.offset(offsetX, offsetY)
+    }
+
+    fun centerOn(position: Vector2f) {
+        gamePosition.offsetTo(
+            position.x - gamePosition.width() / 2f,
+            position.y - gamePosition.height() / 2f
+        )
     }
 
     fun contains(drawable: Drawable): Boolean {
