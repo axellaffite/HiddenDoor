@@ -9,7 +9,7 @@ class Chunk(
     private val textCoordinates: FloatArray,
     private val tileset: Tileset,
     override val rect: RectF
-) : Drawable() {
+) : Drawable {
 
     init {
         println("init chunk: $rect")

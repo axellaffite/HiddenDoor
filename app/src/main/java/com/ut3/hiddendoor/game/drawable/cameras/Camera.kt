@@ -1,4 +1,4 @@
-package com.ut3.hiddendoor.game.drawable
+package com.ut3.hiddendoor.game.drawable.cameras
 
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -6,6 +6,7 @@ import android.graphics.PorterDuff
 import android.graphics.RectF
 import androidx.core.graphics.scaleMatrix
 import androidx.core.graphics.translationMatrix
+import com.ut3.hiddendoor.game.drawable.Drawable
 import com.ut3.hiddendoor.game.utils.Vector2f
 
 /**
@@ -16,7 +17,7 @@ import com.ut3.hiddendoor.game.utils.Vector2f
  * @property screenPosition position of the camera on the screen
  * @property gamePosition position of the camera in the game
  */
-class Camera(private val screenPosition: RectF, private val gamePosition: RectF) {
+open class Camera(private val screenPosition: RectF, private val gamePosition: RectF) {
 
     var zoom: Float = 1f
 

@@ -24,7 +24,7 @@ import kotlin.math.ceil
 class TiledMap(
     private val data: TiledMapData,
     context: Context
-) : Drawable() {
+) : Drawable {
 
     private data class Tile(
         val x: Int,

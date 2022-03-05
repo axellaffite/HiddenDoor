@@ -2,12 +2,10 @@ package com.ut3.hiddendoor.game
 
 import android.content.Context
 import android.graphics.*
-import android.view.KeyEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
-import com.ut3.hiddendoor.game.drawable.Camera
-import com.ut3.hiddendoor.game.drawable.Drawable
+import com.ut3.hiddendoor.game.drawable.cameras.Camera
 
 class GameView(context: Context): SurfaceView(context) {
     private val drawingContext = DrawingContext()
