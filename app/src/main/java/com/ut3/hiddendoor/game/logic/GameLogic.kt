@@ -15,7 +15,7 @@ import kotlin.concurrent.thread
 class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
 
     companion object {
-        private const val TARGET_FPS = 50L
+        private const val TARGET_FPS = 30L
         private const val FRAME_INTERVAL = 1000L / TARGET_FPS
     }
 

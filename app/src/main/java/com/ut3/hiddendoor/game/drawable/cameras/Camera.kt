@@ -7,6 +7,7 @@ import android.graphics.RectF
 import androidx.core.graphics.scaleMatrix
 import androidx.core.graphics.translationMatrix
 import com.ut3.hiddendoor.game.drawable.Drawable
+import com.ut3.hiddendoor.game.drawable.contains
 import com.ut3.hiddendoor.game.utils.Vector2f
 
 /**

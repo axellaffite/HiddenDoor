@@ -1,12 +1,14 @@
 package com.ut3.hiddendoor.game.levels
 
 import android.graphics.*
-import android.view.MotionEvent
 import androidx.core.graphics.withSave
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView
+import com.ut3.hiddendoor.game.drawable.sprites.AnimatedSprite
 import com.ut3.hiddendoor.game.drawable.Drawable
+import com.ut3.hiddendoor.game.drawable.ImmutableRect
 import com.ut3.hiddendoor.game.drawable.cameras.createTrackingCamera
+import com.ut3.hiddendoor.game.drawable.drawRect
 import com.ut3.hiddendoor.game.drawable.hud.Joystick
 import com.ut3.hiddendoor.game.drawable.hud.createHud
 import com.ut3.hiddendoor.game.drawable.tiledmap.loadTiledMap
@@ -23,18 +25,19 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
     }
 
     private val player = createEntity {
-        object : Entity, Drawable {
-
-            override val rect = RectF(200f, 200f, 216f, 216f)
-
+        object : Entity, Drawable, AnimatedSprite(gameView.context, R.raw.character, "idle") {
             private var movement = Joystick.Movement.None
             private var isJumping = false
             val speed = 16f
             var dx = 0f
             var dy = 0f
 
+            init {
+                reset()
+            }
+
             fun reset() {
-                rect.set(RectF(200f, 200f, 216f, 216f))
+                moveTo(200f, 200f)
 
                 movement = Joystick.Movement.None
                 isJumping = false
@@ -54,6 +57,7 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
             }
 
             override fun update(delta: Float) {
+                super<AnimatedSprite>.update(delta)
                 if (shouldBeDead()) {
                     return reset()
                 }
@@ -76,7 +80,7 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
             }
 
             private fun shouldBeDead(): Boolean {
-                return tilemap.collisionTilesIntersecting(rect).any { it == 0 }
+                return tilemap.collisionTilesIntersecting(rect.copyOfUnderlyingRect).any { it == 0 }
             }
 
             private fun moveIfRequired(touchingGround: Boolean, delta: Float) {
@@ -86,6 +90,7 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
                         dx = 0f
                     }
                 }
+
                 var dm = when (movement) {
                     Joystick.Movement.Right -> 1f
                     Joystick.Movement.Left -> -1f
@@ -97,6 +102,14 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
                 }
 
                 dx += dm * 64f * delta
+
+                when(movement) {
+                    Joystick.Movement.Right -> setAction("walk")
+                    Joystick.Movement.Left -> {
+                        setAction("walk", reverse = true)
+                    }
+                    Joystick.Movement.None -> setAction("idle", isBitmapReversed)
+                }
             }
 
             private fun jump(predicate: () -> Boolean = { true }) {
@@ -115,26 +128,34 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
 
             fun updatePosition(isTouchingGround: Boolean, delta: Float) {
                 let {
-                    val tmp = RectF(rect).apply { offset(0f, dy * delta * speed) }
+                    val tmp = rect.copyOfUnderlyingRect.apply { offset(0f, dy * delta * speed) }
                     if (tilemap.collisionTilesIntersecting(tmp).any { it == 1 }) {
                         dy = 0f
                     } else {
-                        rect.set(tmp)
+                        rect = ImmutableRect(tmp)
                     }
                 }
 
-                val tmp = RectF(rect).apply { offset(dx * delta * speed, 0f) }
+                val tmp = rect.copyOfUnderlyingRect.apply { offset(dx * delta * speed, 0f) }
                 if (!tilemap.collisionTilesIntersecting(tmp).any { it == 1 }) {
-                    rect.set(tmp)
+                    rect = ImmutableRect(tmp)
                 }
             }
 
-            fun center() = Vector2f(rect.centerX(), rect.centerY())
+            fun center() = Vector2f(rect.centerX, rect.centerY)
 
-            override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {
-                surfaceHolder.drawRect(rect, paint)
+//            override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {
+//                surfaceHolder.drawRect(rect, paint)
+//            }
+
+        }
+    }
+
+    private val sprite = createEntity {
+        object: AnimatedSprite(gameView.context, R.raw.lever, "off") {
+            init {
+                move(200f, 448f)
             }
-
         }
     }
 
@@ -179,6 +200,7 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
 
                     paint.color = Color.RED
                     canvas.draw(player, paint)
+                    canvas.draw(sprite, paint)
                 }
             }
 

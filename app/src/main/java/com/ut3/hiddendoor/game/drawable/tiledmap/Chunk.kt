@@ -3,12 +3,13 @@ package com.ut3.hiddendoor.game.drawable.tiledmap
 import android.graphics.*
 import android.graphics.RectF.intersects
 import com.ut3.hiddendoor.game.drawable.Drawable
+import com.ut3.hiddendoor.game.drawable.ImmutableRect
 
 class Chunk(
     private val vertices: FloatArray,
     private val textCoordinates: FloatArray,
     private val tileset: Tileset,
-    override val rect: RectF
+    override val rect: ImmutableRect
 ) : Drawable {
 
     init {

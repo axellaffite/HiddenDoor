@@ -14,7 +14,7 @@ data class Circle(
     val alpha: Int
 ): Drawable {
 
-    override val rect: RectF = RectF(
+    override val rect = ImmutableRect(
         centerX - radius,
         centerY - radius,
         centerX + radius,

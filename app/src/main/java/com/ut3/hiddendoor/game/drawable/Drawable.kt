@@ -9,7 +9,7 @@ import com.ut3.hiddendoor.game.drawable.tiledmap.TiledMap
 import com.ut3.hiddendoor.game.drawable.tiledmap.Tileset
 
 interface Drawable {
-    val rect: RectF
+    val rect: ImmutableRect
 
     fun Canvas.draw(bounds: RectF, drawable: Drawable, paint: Paint) {
         drawable.draw(bounds, this, paint)
@@ -18,7 +18,7 @@ interface Drawable {
     fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint)
 
     fun draw(bounds: RectF, target: Canvas, paint: Paint): Boolean {
-        val intersects = intersects(bounds, rect)
+        val intersects = rect.intersects(bounds)
         if (intersects) {
             drawOnCanvas(bounds, target, paint)
             return true

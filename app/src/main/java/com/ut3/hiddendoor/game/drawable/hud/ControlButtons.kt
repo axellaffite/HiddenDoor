@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.drawable.Circle
 import com.ut3.hiddendoor.game.drawable.Drawable
+import com.ut3.hiddendoor.game.drawable.ImmutableRect
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Logic
 import com.ut3.hiddendoor.game.utils.Vector2f
@@ -32,7 +33,7 @@ class ControlButtons(gameView: GameView) : Drawable, Logic {
 
     private val bButton = aButton.copy(centerX = aButton.centerX - buttonSize * 2f - 20f, color = Color.YELLOW)
 
-    override val rect: RectF = RectF(
+    override val rect = ImmutableRect(
         aButton.rect.left,
         aButton.rect.top,
         bButton.rect.right,

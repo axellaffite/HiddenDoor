@@ -6,13 +6,14 @@ import android.graphics.Paint
 import android.graphics.RectF
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.drawable.Drawable
+import com.ut3.hiddendoor.game.drawable.ImmutableRect
 import com.ut3.hiddendoor.game.logic.Entity
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Level
 
 class HUD(gameView: GameView) : Entity, Drawable {
 
-    override val rect: RectF = gameView.rect
+    override val rect = ImmutableRect(gameView.rect)
     val joystick = Joystick(gameView.rect)
     val controlButtons = ControlButtons(gameView)
     private var fps = 0f

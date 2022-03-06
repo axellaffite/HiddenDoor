@@ -2,16 +2,12 @@ package com.ut3.hiddendoor.game.drawable.tiledmap
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import com.ut3.hiddendoor.game.drawable.loadBitmapKeepSize
 import com.ut3.hiddendoor.game.utils.Vector2i
 
 class Tileset(filename: String, private val chunkSize: Int, val tileSize: Int, context: Context) {
 
-    val bitmap = context.resources.let { resources ->
-        val id = resources.getIdentifier(filename, "drawable", context.packageName)
-
-        BitmapFactory.decodeResource(resources, id, BitmapFactory.Options().apply { inScaled = false })
-            ?: throw IllegalStateException("Unable to load tileset: ${filename}")
-    }
+    val bitmap = context.loadBitmapKeepSize(filename)
 
     val width = bitmap.width / tileSize
     val height = bitmap.height / tileSize

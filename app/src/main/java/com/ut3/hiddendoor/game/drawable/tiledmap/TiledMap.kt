@@ -11,6 +11,7 @@ import androidx.annotation.RawRes
 import androidx.core.graphics.times
 import com.charleskorn.kaml.Yaml
 import com.ut3.hiddendoor.game.drawable.Drawable
+import com.ut3.hiddendoor.game.drawable.ImmutableRect
 import com.ut3.hiddendoor.game.utils.Vector2i
 import com.ut3.hiddendoor.game.utils.toVector2f
 import kotlinx.coroutines.async
@@ -103,7 +104,7 @@ class TiledMap(
                             )
                         }.toFloatArray(),
                         tileset = tileset,
-                        rect = RectF(left, top, right, bottom)
+                        rect = ImmutableRect(left, top, right, bottom)
                     )
                 }
             }
@@ -112,7 +113,7 @@ class TiledMap(
 
     private val collisions = data.collisions.chunked(data.width)
 
-    override val rect: RectF = RectF(
+    override val rect = ImmutableRect(
         0f,
         0f,
         data.width * data.tileSize,

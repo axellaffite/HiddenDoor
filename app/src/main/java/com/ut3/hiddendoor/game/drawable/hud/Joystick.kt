@@ -7,6 +7,7 @@ import android.graphics.RectF
 import android.view.MotionEvent
 import androidx.core.graphics.withSave
 import com.ut3.hiddendoor.game.drawable.Drawable
+import com.ut3.hiddendoor.game.drawable.ImmutableRect
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Logic
 
@@ -16,7 +17,7 @@ class Joystick(screenSize: RectF) : Drawable, Logic {
 
     private val height = screenSize.height() / 5f
 
-    override val rect: RectF = RectF(
+    override val rect = ImmutableRect(
         20f,
         screenSize.bottom - (height) - 20f,
         20f + (height * 2.5f),
@@ -26,12 +27,12 @@ class Joystick(screenSize: RectF) : Drawable, Logic {
     private val leftZone = RectF(
         rect.left,
         rect.top,
-        rect.left + rect.width() * 1f / 3f,
+        rect.left + rect.width * 1f / 3f,
         rect.bottom
     )
 
     private val rightZone = RectF(
-        rect.right - rect.width() * 1f / 3f,
+        rect.right - rect.width * 1f / 3f,
         rect.top,
         rect.right,
         rect.bottom
@@ -76,7 +77,7 @@ class Joystick(screenSize: RectF) : Drawable, Logic {
     override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) = surfaceHolder.withSave {
         paint.color = Color.WHITE
         paint.alpha = 95
-        surfaceHolder.drawRoundRect(rect, 16f, 16f, paint)
+        surfaceHolder.drawRoundRect(rect.copyOfUnderlyingRect, 16f, 16f, paint)
     }
 
 }
