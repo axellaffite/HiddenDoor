@@ -10,6 +10,11 @@ import com.ut3.hiddendoor.game.drawable.tiledmap.Tileset
 
 interface Drawable {
     val rect: RectF
+
+    fun Canvas.draw(bounds: RectF, drawable: Drawable, paint: Paint) {
+        drawable.draw(bounds, this, paint)
+    }
+
     fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint)
 
     fun draw(bounds: RectF, target: Canvas, paint: Paint): Boolean {

@@ -21,7 +21,7 @@ class GameView(context: Context): SurfaceView(context) {
         }
     }
 
-    val rect get() = Rect(0, 0, width, height)
+    val rect get() = RectF(0f, 0f, width.toFloat(), height.toFloat())
 
     inner class DrawingContext {
         private var paint: Paint = Paint()
