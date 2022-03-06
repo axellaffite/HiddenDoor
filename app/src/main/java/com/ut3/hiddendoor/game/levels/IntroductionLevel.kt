@@ -2,10 +2,13 @@ package com.ut3.hiddendoor.game.levels
 
 import android.graphics.*
 import android.view.MotionEvent
+import androidx.core.graphics.withSave
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.drawable.Drawable
 import com.ut3.hiddendoor.game.drawable.cameras.createTrackingCamera
+import com.ut3.hiddendoor.game.drawable.hud.Joystick
+import com.ut3.hiddendoor.game.drawable.hud.createHud
 import com.ut3.hiddendoor.game.drawable.tiledmap.loadTiledMap
 import com.ut3.hiddendoor.game.logic.Entity
 import com.ut3.hiddendoor.game.logic.InputState
@@ -19,50 +22,46 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
         const val TILE_MAP_RESOURCE = R.raw.testmap
     }
 
-    enum class Movement { Left, Right, None }
-
     private val player = createEntity {
         object : Entity, Drawable {
 
             override val rect = RectF(200f, 200f, 216f, 216f)
 
-            private var movement = Movement.None
+            private var movement = Joystick.Movement.None
             private var isJumping = false
             val speed = 16f
             var dx = 0f
             var dy = 0f
 
+            fun reset() {
+                rect.set(RectF(200f, 200f, 216f, 216f))
+
+                movement = Joystick.Movement.None
+                isJumping = false
+                dx = 0f
+                dy = 0f
+            }
+
             override fun handleInput(inputState: InputState) {
                 val event = inputState.touchEvent
                 if (event == null) {
-                    movement = Movement.None
+                    movement = Joystick.Movement.None
                     isJumping = false
                     return
                 }
 
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        movement = when {
-                            event.x < gameView.width / 4 -> Movement.Left
-                            event.x > gameView.width * 3f / 4f -> Movement.Right
-                            else -> Movement.None
-                        }
-
-                        isJumping = false
-                    }
-
-                    MotionEvent.ACTION_UP -> {
-                        movement = Movement.None
-                        isJumping = event.y < gameView.height / 4f && isTouchingGround()
-                    }
-                }
+                movement = hud.joystick.direction
             }
 
             override fun update(delta: Float) {
+                if (shouldBeDead()) {
+                    return reset()
+                }
+
                 val isTouchingGround = isTouchingGround()
                 applyGravity(isTouchingGround, delta)
                 moveIfRequired(isTouchingGround, delta)
-                jump { isJumping && isTouchingGround }
+                jump { hud.controlButtons.isAPressed && isTouchingGround }
 
                 dx = dx.coerceIn(-8f, 8f)
                 dy = dy.coerceIn(-16f, 16f)
@@ -76,16 +75,20 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
                 ).any { tileValue -> tileValue == 1 }
             }
 
+            private fun shouldBeDead(): Boolean {
+                return tilemap.collisionTilesIntersecting(rect).any { it == 0 }
+            }
+
             private fun moveIfRequired(touchingGround: Boolean, delta: Float) {
-                if (movement == Movement.None) {
+                if (movement == Joystick.Movement.None) {
                     dx /= 2f
                     if (dx < 0.5f) {
                         dx = 0f
                     }
                 }
                 var dm = when (movement) {
-                    Movement.Right -> 1f
-                    Movement.Left -> -1f
+                    Joystick.Movement.Right -> 1f
+                    Joystick.Movement.Left -> -1f
                     else -> 0f
                 }
 
@@ -143,6 +146,10 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
         track = player::center
     )
 
+    private val hud = createHud(gameView) {
+        controlButtons.isBVisible = false
+    }
+
 
     override fun onLoad() {
     }
@@ -162,19 +169,21 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
 
     override fun render() {
         gameView.draw { canvas, paint ->
-            val scaleFactor = ((gameView.width / tilemap.tileSize) / 40f)
-            canvas.scale(scaleFactor, scaleFactor, gameView.width / 2f, gameView.height / 2f)
-            canvas.drawColor(Color.BLUE)
+            canvas.withSave {
+                val scaleFactor = ((gameView.width / tilemap.tileSize) / 18f)
+                canvas.scale(scaleFactor, scaleFactor, gameView.width / 2f, gameView.height / 2f)
+                canvas.drawColor(Color.BLUE)
 
-            withCamera(camera) { canvas, paint ->
-                canvas.draw(tilemap, paint)
+                withCamera(camera) { canvas, paint ->
+                    canvas.draw(tilemap, paint)
 
-                paint.color = Color.RED
-                canvas.draw(player, paint)
+                    paint.color = Color.RED
+                    canvas.draw(player, paint)
+                }
             }
 
-            paint.color = Color.WHITE
-            canvas.drawText("$fps fps", 10f, 10f, paint)
+
+            hud.draw(gameView.rect, canvas, paint)
         }
     }
 
