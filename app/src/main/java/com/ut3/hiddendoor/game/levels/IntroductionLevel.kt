@@ -31,6 +31,8 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
             val speed = 16f
             var dx = 0f
             var dy = 0f
+            private var isDead = false
+            private var reactToEnvironment = true
 
             init {
                 reset()
@@ -39,6 +41,8 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
             fun reset() {
                 moveTo(200f, 200f)
 
+                isDead = false
+                reactToEnvironment = true
                 movement = Joystick.Movement.None
                 isJumping = false
                 dx = 0f
@@ -46,31 +50,40 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
             }
 
             override fun handleInput(inputState: InputState) {
-                val event = inputState.touchEvent
-                if (event == null) {
-                    movement = Joystick.Movement.None
-                    isJumping = false
-                    return
-                }
+                if (reactToEnvironment) {
+                    val event = inputState.touchEvent
+                    if (event == null) {
+                        movement = Joystick.Movement.None
+                        isJumping = false
+                        return
+                    }
 
-                movement = hud.joystick.direction
+                    movement = hud.joystick.direction
+                }
             }
 
             override fun update(delta: Float) {
                 super<AnimatedSprite>.update(delta)
                 if (shouldBeDead()) {
-                    return reset()
+                    die()
+                    if (isAnimationFinished) {
+                        reset()
+                    }
+
+                    return
                 }
 
-                val isTouchingGround = isTouchingGround()
-                applyGravity(isTouchingGround, delta)
-                moveIfRequired(isTouchingGround, delta)
-                jump { hud.controlButtons.isAPressed && isTouchingGround }
+                if (reactToEnvironment) {
+                    val isTouchingGround = isTouchingGround()
+                    applyGravity(isTouchingGround, delta)
+                    moveIfRequired(isTouchingGround, delta)
+                    jump { hud.controlButtons.isAPressed && isTouchingGround }
 
-                dx = dx.coerceIn(-8f, 8f)
-                dy = dy.coerceIn(-16f, 16f)
+                    dx = dx.coerceIn(-8f, 8f)
+                    dy = dy.coerceIn(-16f, 16f)
 
-                updatePosition(isTouchingGround, delta)
+                    updatePosition(isTouchingGround, delta)
+                }
             }
 
             private fun isTouchingGround(): Boolean {
@@ -80,7 +93,7 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
             }
 
             private fun shouldBeDead(): Boolean {
-                return tilemap.collisionTilesIntersecting(rect.copyOfUnderlyingRect).any { it == 0 }
+                return isDead || tilemap.collisionTilesIntersecting(rect.copyOfUnderlyingRect).any { it == 0 }
             }
 
             private fun moveIfRequired(touchingGround: Boolean, delta: Float) {
@@ -104,11 +117,19 @@ class IntroductionLevel(gameView: GameView) : Level(gameView) {
                 dx += dm * 64f * delta
 
                 when(movement) {
-                    Joystick.Movement.Right -> setAction("walk")
+                    Joystick.Movement.Right -> setAction("run")
                     Joystick.Movement.Left -> {
-                        setAction("walk", reverse = true)
+                        setAction("run", reverse = true)
                     }
                     Joystick.Movement.None -> setAction("idle", isBitmapReversed)
+                }
+            }
+
+            private fun die() {
+                if (!isDead) {
+                    reactToEnvironment = false
+                    isDead = true
+                    setAction("hit", isBitmapReversed)
                 }
             }
 
