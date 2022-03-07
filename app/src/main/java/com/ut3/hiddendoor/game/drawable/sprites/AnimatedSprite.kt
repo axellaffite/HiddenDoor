@@ -34,7 +34,6 @@ abstract class AnimatedSprite(
     private var drawVertices = verticesForIndex(currentAction, actionIndexOffset, isBitmapReversed)
 
     val isAnimationFinished: Boolean get() {
-        println("current=$actionIndexOffset count=${currentAction.count}")
         return currentAction.count == actionIndexOffset + 1
     }
 
@@ -47,6 +46,7 @@ abstract class AnimatedSprite(
         currentAction = newAction
         actionIndexOffset = 0
         isBitmapReversed = reverse
+        timeSinceLastUpdate = currentAction.time
 
         verticesForIndex(currentAction, offset = actionIndexOffset, reverse = isBitmapReversed)
 
@@ -63,7 +63,6 @@ abstract class AnimatedSprite(
 
     private fun verticesForIndex(action: SpriteAction, offset: Int, reverse: Boolean): FloatArray {
         val index = action.index + offset
-        println("index=$index actionindex=${action.index} offset=^$offset")
 
         var left = tileSize.x * index
         var right = left + tileSize.x
@@ -90,7 +89,7 @@ abstract class AnimatedSprite(
             return
         }
 
-        if (timeSinceLastUpdate > currentAction.time) {
+        if (timeSinceLastUpdate >= currentAction.time) {
             timeSinceLastUpdate = 0f
             actionIndexOffset = (actionIndexOffset + 1) % currentAction.count
             drawVertices = verticesForIndex(currentAction, actionIndexOffset, isBitmapReversed)
