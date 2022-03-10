@@ -16,3 +16,7 @@ data class Vector2i(
 ): Vector2<Int>
 
 fun Vector2i.toVector2f() = Vector2f(x = x.toFloat(), y = y.toFloat())
+operator fun Vector2f.times(amount: Float) = Vector2f(x * amount, y * amount)
+
+operator fun Vector2i.times(amount: Int) = Vector2i(x * amount, y * amount)
+operator fun Vector2i.times(amount: Float) = Vector2f(x * amount, y * amount)

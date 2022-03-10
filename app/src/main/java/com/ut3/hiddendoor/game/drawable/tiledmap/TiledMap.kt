@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Rect
 import android.graphics.RectF
 import android.util.Log
 import androidx.annotation.RawRes
@@ -13,6 +12,7 @@ import com.charleskorn.kaml.Yaml
 import com.ut3.hiddendoor.game.drawable.Drawable
 import com.ut3.hiddendoor.game.drawable.ImmutableRect
 import com.ut3.hiddendoor.game.utils.Vector2i
+import com.ut3.hiddendoor.game.utils.times
 import com.ut3.hiddendoor.game.utils.toVector2f
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -35,8 +35,12 @@ class TiledMap(
     )
 
     val tileSize = data.tileSize
+    val width = data.width
+    val height = data.height
 
     private val tileset = Tileset(data.tileset, data.chunkSize, data.tileSize.toInt(), context)
+
+    val bitmap get() = tileset.bitmap
 
     private val layers = let {
         val res = data.layers.mapValues { (_, values) ->
@@ -104,14 +108,15 @@ class TiledMap(
                             )
                         }.toFloatArray(),
                         tileset = tileset,
-                        rect = ImmutableRect(left, top, right, bottom)
+                        rect = ImmutableRect(left, top, right, bottom),
+                        chunkSize = Vector2i(data.chunkSize, data.chunkSize)
                     )
                 }
             }
         }
     }
 
-    private val collisions = data.collisions.chunked(data.width)
+    private val collisions = data.collisions.chunked(data.width).toMutableList().map { it.toMutableList() }
 
     override val rect = ImmutableRect(
         0f,
@@ -119,6 +124,25 @@ class TiledMap(
         data.width * data.tileSize,
         data.height * data.tileSize
     )
+
+
+
+    fun textVerticesGivenIndex(index: Int): FloatArray {
+        return textVerticesGivenPosition(tileset.indicesIn2DForIndex(index))
+    }
+
+    fun textVerticesGivenPosition(tilePosition: Vector2i): FloatArray {
+        val (left, top) = tilePosition * tileSize
+        val (right, bottom) = (left + tileSize to top + tileSize)
+        return floatArrayOf(
+            left, top,
+            left, bottom,
+            right, top,
+            right, top,
+            left, bottom,
+            right, bottom
+        )
+    }
 
     fun collisionTilesIntersecting(rect: RectF): List<Int> {
         val coordinates = rect.times(1f / data.tileSize)
@@ -135,15 +159,15 @@ class TiledMap(
     }
 
     override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {
-        runBlocking {
-            layers.flatMap { (_, chunks) ->
-                chunks.map { chunk ->
-                    async {
-                        chunk.draw(bounds, surfaceHolder, paint)
-                    }
-                }
-            }.awaitAll()
+        layers.forEach { (_, chunks) ->
+            chunks.forEach { chunk ->
+                chunk.draw(bounds, surfaceHolder, paint)
+            }
         }
+    }
+
+    fun setCollision(x: Int, y: Int, value: Int) {
+        collisions[y][x] = value
     }
 
 }

@@ -1,16 +1,24 @@
 package com.ut3.hiddendoor.game.logic
 
 import android.annotation.SuppressLint
+import android.hardware.Sensor
+import android.hardware.Sensor.TYPE_LIGHT
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.hardware.SensorManager.SENSOR_DELAY_FASTEST
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.content.getSystemService
 import com.ut3.hiddendoor.game.GameView
-import com.ut3.hiddendoor.game.levels.IntroductionLevel
+import com.ut3.hiddendoor.game.levels.introduction.IntroductionLevel
 import com.ut3.hiddendoor.game.utils.Vector2f
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.schedule
 import kotlin.concurrent.thread
+
 
 class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
 
@@ -21,6 +29,17 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
 
     init {
         gameView.setOnTouchListener(this)
+        gameView.context.getSystemService<SensorManager>()?.run {
+            val lightSensor = getDefaultSensor(TYPE_LIGHT)!!
+            val listener = object : SensorEventListener {
+                override fun onAccuracyChanged(sensor: Sensor?, i: Int) = Unit
+                override fun onSensorChanged(sensorEvent: SensorEvent) {
+                    state.luminosity = sensorEvent.values[0]
+                }
+            }
+
+            registerListener(listener, lightSensor, SENSOR_DELAY_FASTEST)
+        }
     }
 
     private var isAlive = AtomicBoolean(false)
@@ -37,7 +56,7 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
     private val level = IntroductionLevel(gameView)
     private var previousUpdate = 0L
 
-    private var state = MutableInputState(null, Vector2f(0f,0f), 0f, Vector2f(0f, 0f))
+    private var state = MutableInputState(null, Vector2f(0f,0f), 500f, Vector2f(0f, 0f))
 
     private fun scheduleRenderTask() {
         if (shouldRender.get()) {
@@ -65,8 +84,8 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
         isAlive.set(false)
         shouldRender.set(false)
 
+        thread.interrupt()
         runCatching { renderMutex.release() }
-        thread.join()
     }
 
     private fun gameLoop() {
@@ -83,7 +102,7 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
             level.update(deltaS)
             level.postUpdate(deltaS)
 
-            renderMutex.acquire()
+//            renderMutex.acquire()
             level.render()
 
             timer.schedule(0) {

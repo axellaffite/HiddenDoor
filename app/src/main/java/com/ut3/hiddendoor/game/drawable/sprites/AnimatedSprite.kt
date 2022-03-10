@@ -27,9 +27,9 @@ abstract class AnimatedSprite(
     private val tileCount get() = information.metadata.tileCount
     override var rect = ImmutableRect(0f, 0f, tileSize.x, tileSize.y); protected set
 
-    private var currentAction: SpriteAction = actions.getValue(defaultAction)
+    protected var currentAction: SpriteAction = actions.getValue(defaultAction); private set
     private var timeSinceLastUpdate = 0f
-    private var actionIndexOffset = 0
+    protected var actionIndexOffset = 0; private set
     var isBitmapReversed = false; private set
     private var drawVertices = verticesForIndex(currentAction, actionIndexOffset, isBitmapReversed)
 
@@ -38,7 +38,11 @@ abstract class AnimatedSprite(
     }
 
     fun setAction(action: String, reverse: Boolean = false): Boolean {
-        val newAction = actions[action] ?: return false
+        val newAction = actions[action]
+            ?: return false.also {
+                println("Cannot set action to $action, available ones are ${actions.keys}")
+            }
+
         if (newAction == currentAction) {
             return false
         }
@@ -48,7 +52,7 @@ abstract class AnimatedSprite(
         isBitmapReversed = reverse
         timeSinceLastUpdate = currentAction.time
 
-        verticesForIndex(currentAction, offset = actionIndexOffset, reverse = isBitmapReversed)
+        drawVertices = verticesForIndex(currentAction, offset = actionIndexOffset, reverse = isBitmapReversed)
 
         return true
     }
