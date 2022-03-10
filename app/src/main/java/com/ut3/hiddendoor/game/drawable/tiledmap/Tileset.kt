@@ -3,6 +3,7 @@ package com.ut3.hiddendoor.game.drawable.tiledmap
 import android.content.Context
 import android.graphics.BitmapFactory
 import com.ut3.hiddendoor.game.drawable.loadBitmapKeepSize
+import com.ut3.hiddendoor.game.utils.Vector2f
 import com.ut3.hiddendoor.game.utils.Vector2i
 
 class Tileset(filename: String, private val chunkSize: Int, val tileSize: Int, context: Context) {
@@ -29,5 +30,5 @@ class Tileset(filename: String, private val chunkSize: Int, val tileSize: Int, c
      * @param index index of the tile
      * @return the x and y position of the tile in the current tileset (not * by [tileSize])
      */
-    fun positionGivenIndex(index: Int) = Vector2i(x = index % width, y = index / tileSize)
+    fun indicesIn2DForIndex(index: Int) = Vector2i(x = index % width, y = index / tileSize)
 }

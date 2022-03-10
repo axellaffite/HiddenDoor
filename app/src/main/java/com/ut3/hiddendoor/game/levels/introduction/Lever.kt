@@ -1,0 +1,53 @@
+package com.ut3.hiddendoor.game.levels.introduction
+
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.RectF
+import com.ut3.hiddendoor.R
+import com.ut3.hiddendoor.game.GameView
+import com.ut3.hiddendoor.game.drawable.hud.HUD
+import com.ut3.hiddendoor.game.drawable.sprites.AnimatedSprite
+import com.ut3.hiddendoor.game.logic.InputState
+import com.ut3.hiddendoor.game.logic.Player
+
+class Lever(
+    gameView: GameView,
+    private val hud: HUD,
+    private val player: Player,
+    private val bridge: Bridge,
+    conf: Lever.() -> Unit
+) : AnimatedSprite(gameView.context, R.raw.lever, "off")
+{
+
+    init { conf() }
+
+    private var luminosityLevel = 0f
+    var alpha = 0f
+
+    override fun handleInput(inputState: InputState) {
+        luminosityLevel = inputState.luminosity
+        if (hud.controlButtons.isBPressed && rect.intersects(player.rect)) {
+            setAction("on")
+            bridge.constructBridge()
+        }
+    }
+
+    override fun update(delta: Float) {
+        super.update(delta)
+        val threshold = 80f
+
+        alpha = (threshold - luminosityLevel).coerceAtLeast(0f) * (250f / threshold)
+
+        hud.controlButtons.isBVisible = alpha > 200
+            && !bridge.isShown
+            && rect.intersects(player.rect)
+
+    }
+
+    override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {
+        val selfPaint = Paint(paint)
+        selfPaint.alpha = (alpha).toInt()
+        super.drawOnCanvas(bounds, surfaceHolder, selfPaint)
+    }
+
+}

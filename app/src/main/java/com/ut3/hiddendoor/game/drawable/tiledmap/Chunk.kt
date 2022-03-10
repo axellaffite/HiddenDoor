@@ -4,11 +4,14 @@ import android.graphics.*
 import android.graphics.RectF.intersects
 import com.ut3.hiddendoor.game.drawable.Drawable
 import com.ut3.hiddendoor.game.drawable.ImmutableRect
+import com.ut3.hiddendoor.game.utils.Vector2f
+import com.ut3.hiddendoor.game.utils.Vector2i
 
 class Chunk(
     private val vertices: FloatArray,
     private val textCoordinates: FloatArray,
     private val tileset: Tileset,
+    private val chunkSize: Vector2i,
     override val rect: ImmutableRect
 ) : Drawable {
 

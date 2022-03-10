@@ -11,13 +11,13 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var logic: GameLogic
 
-//    override fun onPause() {
-//        if (this::logic.isInitialized) {
-//            logic.pause()
-//        }
-//
-//        super.onPause()
-//    }
+    override fun onPause() {
+        if (this::logic.isInitialized) {
+            logic.stop()
+        }
+
+        super.onPause()
+    }
 
     override fun onRestart() {
         super.onRestart()
