@@ -30,7 +30,7 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
     init {
         gameView.setOnTouchListener(this)
         gameView.context.getSystemService<SensorManager>()?.run {
-            val lightSensor = getDefaultSensor(TYPE_LIGHT)!!
+            val lightSensor = getDefaultSensor(TYPE_LIGHT)
             val listener = object : SensorEventListener {
                 override fun onAccuracyChanged(sensor: Sensor?, i: Int) = Unit
                 override fun onSensorChanged(sensorEvent: SensorEvent) {
