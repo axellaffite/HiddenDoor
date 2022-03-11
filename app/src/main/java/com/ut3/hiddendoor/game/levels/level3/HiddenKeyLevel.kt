@@ -16,14 +16,13 @@ import com.ut3.hiddendoor.game.logic.Player
 
 class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
     companion object {
-        const val TILE_MAP_RESOURCE = R.raw.testmap
+        const val TILE_MAP_RESOURCE = R.raw.hiddenkeymap
     }
-    private var fps = 0
-    private val tilemap = gameView.context.loadTiledMap(IntroductionLevel.TILE_MAP_RESOURCE)
+    private val tilemap = gameView.context.loadTiledMap(HiddenKeyLevel.TILE_MAP_RESOURCE)
     private val hud = createHud(gameView) { controlButtons.isBVisible = false }
     private val player = createEntity { Player(gameView, tilemap, hud) }
     private val key = createEntity {
-        Key(x=0,y=0,tilemap= tilemap)
+        Key(gameView,hud,tilemap ,player) { move(200f, 350f ) }
     }
 
     private val camera = createTrackingCamera(
@@ -34,11 +33,9 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
 
 
     override fun onLoad() {
-        TODO("Not yet implemented")
     }
 
     override fun onSaveState() {
-        TODO("Not yet implemented")
     }
 
     override fun handleInput(inputState: InputState) {
@@ -60,7 +57,6 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
 
                     paint.color = Color.RED
                     canvas.draw(player, paint)
-
 
                 }
             }
