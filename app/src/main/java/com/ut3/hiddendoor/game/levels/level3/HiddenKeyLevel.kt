@@ -17,6 +17,7 @@ import com.ut3.hiddendoor.game.logic.Player
 class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
     companion object {
         const val TILE_MAP_RESOURCE = R.raw.hiddenkeymap
+        const val NAME = "hiddenKeyLevel"
     }
     private val tilemap = gameView.context.loadTiledMap(HiddenKeyLevel.TILE_MAP_RESOURCE)
     private val hud = createHud(gameView) { controlButtons.isBVisible = false }

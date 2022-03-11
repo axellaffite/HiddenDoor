@@ -8,6 +8,6 @@ class Preferences(val context: Context) {
         context.getSharedPreferences("preferences", Context.MODE_PRIVATE)
 
     var currentLevel: String
-        get() = sharedPreferences.getString("current_level", "introduction")!!
+        get() = sharedPreferences.getString("current_level", "hiddenKeyLevel")!!
         set(value) = sharedPreferences.edit { putString("current_level", value) }
 }
