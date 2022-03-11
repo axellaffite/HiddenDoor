@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'idea'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.10'
+    id 'kotlin-android-extensions'
 }
 
 idea {
