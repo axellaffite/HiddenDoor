@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.getSystemService
 import com.ut3.hiddendoor.game.GameView
+import com.ut3.hiddendoor.game.levels.HomeLevel
 import com.ut3.hiddendoor.game.levels.LevelFactory
 import com.ut3.hiddendoor.game.levels.introduction.IntroductionLevel
 import com.ut3.hiddendoor.game.utils.Preferences
@@ -58,7 +59,7 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
     private val renderMutex = Semaphore(1)
     private val timer = Timer()
 
-    private val level = LevelFactory.getLevel(preferences.currentLevel, gameView)
+    private val level = LevelFactory.getLevel(HomeLevel.NAME, gameView)
         ?: throw IllegalStateException("Unable to load level ${preferences.currentLevel}")
 
     private var state = MutableInputState(null, Vector2f(0f,0f), 500f, Vector2f(0f, 0f))
