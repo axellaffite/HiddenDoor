@@ -15,6 +15,7 @@ import com.ut3.hiddendoor.game.levels.LevelFactory
 import com.ut3.hiddendoor.game.levels.introduction.IntroductionLevel
 import com.ut3.hiddendoor.game.utils.Preferences
 import com.ut3.hiddendoor.game.utils.Vector2f
+import com.ut3.hiddendoor.game.utils.Vector3f
 import java.lang.IllegalStateException
 import java.util.*
 import java.util.concurrent.Semaphore
@@ -61,7 +62,7 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
     private val level = LevelFactory.getLevel(preferences.currentLevel, gameView)
         ?: throw IllegalStateException("Unable to load level ${preferences.currentLevel}")
 
-    private var state = MutableInputState(null, Vector2f(0f,0f), 500f, Vector2f(0f, 0f))
+    private var state = MutableInputState(null, Vector3f(0f,0f, 0f), 500f, Vector3f(0f,0f, 0f))
 
     private fun scheduleRenderTask() {
         if (shouldRender.get()) {

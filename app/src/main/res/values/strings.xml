@@ -16,4 +16,5 @@
     <string name="activity_sensor_shake_text">Then, click on the button bellow, and shake you phone during the record</string>
     <string name="activity_sensor_record">Record</string>
     <string name="activity_sensor_play_text">Play</string>
+    <string name="activity_sensor_record_again_text">Record again</string>
 </resources>
