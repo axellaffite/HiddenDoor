@@ -1,6 +1,7 @@
 package com.ut3.hiddendoor.game.logic
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.hardware.Sensor
 import android.hardware.Sensor.TYPE_LIGHT
 import android.hardware.SensorEvent
@@ -11,8 +12,9 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.getSystemService
 import com.ut3.hiddendoor.game.GameView
-import com.ut3.hiddendoor.game.levels.introduction.IntroductionLevel
+import com.ut3.hiddendoor.game.levels.leveltwo.LevelTwo
 import com.ut3.hiddendoor.game.utils.Vector2f
+import com.ut3.hiddendoor.game.utils.Vector3f
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.atomic.AtomicBoolean
@@ -20,14 +22,17 @@ import kotlin.concurrent.schedule
 import kotlin.concurrent.thread
 
 
-class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
+class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener, SensorEventListener {
 
     companion object {
         private const val TARGET_FPS = 30L
         private const val FRAME_INTERVAL = 1000L / TARGET_FPS
     }
+    var sensorManager : SensorManager = gameView.context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    var rotationSensor : Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 
     init {
+        sensorManager.registerListener(this,rotationSensor, SENSOR_DELAY_FASTEST)
         gameView.setOnTouchListener(this)
         gameView.context.getSystemService<SensorManager>()?.run {
             val lightSensor = getDefaultSensor(TYPE_LIGHT)
@@ -53,10 +58,12 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
     private val timer = Timer()
 
 
-    private val level = IntroductionLevel(gameView)
+    private val level = LevelTwo(gameView)
     private var previousUpdate = 0L
 
-    private var state = MutableInputState(null, Vector2f(0f,0f), 500f, Vector2f(0f, 0f))
+    private var state = MutableInputState(null, Vector2f(0f,0f), 500f, Vector2f(0f, 0f),
+        Vector3f(0f,0f,0f)
+    )
 
     private fun scheduleRenderTask() {
         if (shouldRender.get()) {
@@ -115,6 +122,17 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
         state.touchEvent = event
         return true
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        when (event?.sensor?.type) {
+            Sensor.TYPE_ROTATION_VECTOR -> {
+                state.rotation = Vector3f(x=event.values[0],y=event.values[1],z=event.values[2])
+            }
+        }
+    }
+
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
     }
 
 }

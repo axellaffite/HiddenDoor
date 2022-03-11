@@ -16,7 +16,7 @@ class Player(
     gameView: GameView,
     private val tilemap: TiledMap,
     private val hud: HUD,
-    configuration: Player.() -> Unit = {}
+    private val configuration: Player.() -> Unit = {}
 ): Entity,
     Drawable,
     AnimatedSprite(gameView.context, R.raw.character, "idle")
@@ -24,6 +24,10 @@ class Player(
 
     companion object {
         const val SPEED = 12f
+    }
+
+    enum class ROTATION {
+        STRAIGHT,REVERSED
     }
 
     private val runSound = MediaPlayer.create(gameView.context, R.raw.feet_49)
@@ -34,6 +38,7 @@ class Player(
     private var reactToEnvironment = true
     var dx = 0f
     var dy = 0f
+    var gravity = ROTATION.STRAIGHT;
 
     init {
         reset()
@@ -41,7 +46,7 @@ class Player(
     }
 
     private fun reset() {
-        moveTo(200f, 200f)
+        configuration()
 
         isDead = false
         reactToEnvironment = true
@@ -155,9 +160,17 @@ class Player(
     }
 
     private fun applyGravity(isTouchingGround: Boolean, delta: Float) {
-        if (!isTouchingGround) {
-            dy += (12.2f * delta)
+        if (gravity == ROTATION.STRAIGHT) {
+            if (!isTouchingGround) {
+                dy += (12.2f * delta)
+            }
+        } else {
+            dy -= (12.2f * delta)
         }
+    }
+
+    fun changeRotation(rotation : ROTATION) {
+        gravity = rotation
     }
 
     fun updatePosition(isTouchingGround: Boolean, delta: Float) {
