@@ -11,8 +11,11 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.getSystemService
 import com.ut3.hiddendoor.game.GameView
+import com.ut3.hiddendoor.game.levels.LevelFactory
 import com.ut3.hiddendoor.game.levels.introduction.IntroductionLevel
+import com.ut3.hiddendoor.game.utils.Preferences
 import com.ut3.hiddendoor.game.utils.Vector2f
+import java.lang.IllegalStateException
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.atomic.AtomicBoolean
@@ -26,6 +29,8 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
         private const val TARGET_FPS = 30L
         private const val FRAME_INTERVAL = 1000L / TARGET_FPS
     }
+
+    private val preferences = Preferences(gameView.context)
 
     init {
         gameView.setOnTouchListener(this)
@@ -42,6 +47,7 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
         }
     }
 
+    private var previousUpdate = 0L
     private var isAlive = AtomicBoolean(false)
     private var shouldRender = AtomicBoolean(false)
     private val thread = thread(start = false) {
@@ -52,9 +58,8 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener {
     private val renderMutex = Semaphore(1)
     private val timer = Timer()
 
-
-    private val level = IntroductionLevel(gameView)
-    private var previousUpdate = 0L
+    private val level = LevelFactory.getLevel(preferences.currentLevel, gameView)
+        ?: throw IllegalStateException("Unable to load level ${preferences.currentLevel}")
 
     private var state = MutableInputState(null, Vector2f(0f,0f), 500f, Vector2f(0f, 0f))
 
