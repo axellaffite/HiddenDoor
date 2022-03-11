@@ -70,7 +70,9 @@ class Key(
 
     override fun handleInput(inputState: InputState) {
         accelerometerLevel = inputState.acceleration
-        shakeDetector()
+        if (!keyAvailable) {
+            shakeDetector()
+        }
     }
 
     override fun update(delta: Float) {
