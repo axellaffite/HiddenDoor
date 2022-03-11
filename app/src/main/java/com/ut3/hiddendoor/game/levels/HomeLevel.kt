@@ -34,12 +34,11 @@ class HomeLevel(private val gameView: GameView) : EntityManager() {
     }
     private val lever = createEntity { Lever(gameView, hud, player, bridge) { move(200f, 448f) } }
 
-    private val camera = Camera(
+    private val camera = createTrackingCamera(
         screenPosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),
-        gamePosition = RectF(0f, 0f, tilemap.tileSize*90, tilemap.tileSize*90)
-    ).apply {
-        centerOn(Vector2f(tilemap.rect.width/2,tilemap.rect.height/2))
-    }
+        gamePosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),
+        track = player::center
+    )
 
     override fun onLoad() {
         sound = MediaPlayer.create(gameView.context, R.raw.ambiance_sound).apply {
@@ -55,9 +54,9 @@ class HomeLevel(private val gameView: GameView) : EntityManager() {
     override fun render() {
         gameView.draw { canvas, paint ->
             canvas.withSave {
-                val scaleFactor = ((gameView.width / tilemap.tileSize) / 75f)
+                val scaleFactor = ((gameView.width / tilemap.tileSize) / 18f)
                 canvas.scale(scaleFactor, scaleFactor, gameView.width / 2f, gameView.height / 2f)
-                canvas.drawColor(Color.BLUE)
+                canvas.drawColor(Color.GRAY)
 
                 withCamera(camera) { canvas, paint ->
                     canvas.draw(tilemap, paint)
