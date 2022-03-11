@@ -14,9 +14,6 @@ import com.ut3.hiddendoor.game.drawable.ImmutableRect
 import com.ut3.hiddendoor.game.utils.Vector2i
 import com.ut3.hiddendoor.game.utils.times
 import com.ut3.hiddendoor.game.utils.toVector2f
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import java.lang.Integer.min
@@ -24,7 +21,7 @@ import kotlin.math.ceil
 
 class TiledMap(
     private val data: TiledMapData,
-    context: Context
+    private val context: Context
 ) : Drawable {
 
     private data class Tile(
@@ -38,13 +35,17 @@ class TiledMap(
     val width = data.width
     val height = data.height
 
-    private val tileset = Tileset(data.tileset, data.chunkSize, data.tileSize.toInt(), context)
+    private val availableTilesets = mutableMapOf<String, Tileset>()
+    private val tileset = getOrLoadTileset(data.tileset)
 
     val bitmap get() = tileset.bitmap
 
     private val layers = let {
+
         val res = data.layers.mapValues { (_, values) ->
-            values.mapIndexed { i, v ->
+            val currentTileset = getOrLoadTileset(values.tileset ?: data.tileset)
+
+            currentTileset to values.data.mapIndexed { i, v ->
                 val interpretedValue = v.split(".").map(String::toInt)
                 val tx = interpretedValue[0]
                 val ty = interpretedValue.getOrElse(1) { if (tx == -1) -1 else 0 }
@@ -53,7 +54,8 @@ class TiledMap(
                 .mapValues { (_, v) -> v.groupBy { it.x / data.chunkSize } }
         }
 
-        res.mapValues { (_, layer) ->
+        res.mapValues { (_, tilesetAndLayer) ->
+            val (currentTileset, layer) = tilesetAndLayer
             layer.flatMap { (y, lines) ->
                 lines.map { (x, chunk) ->
                     // Chunk bounds in pixels
@@ -107,7 +109,7 @@ class TiledMap(
                                 rightTCoords, bottomTCoords
                             )
                         }.toFloatArray(),
-                        tileset = tileset,
+                        tileset = currentTileset,
                         rect = ImmutableRect(left, top, right, bottom),
                         chunkSize = Vector2i(data.chunkSize, data.chunkSize)
                     )
@@ -125,7 +127,10 @@ class TiledMap(
         data.height * data.tileSize
     )
 
-
+    private fun getOrLoadTileset(res: String): Tileset {
+        return availableTilesets[res]
+            ?: Tileset(res, data.chunkSize, data.tileSize.toInt(), context).also { availableTilesets[res] = it }
+    }
 
     fun textVerticesGivenIndex(index: Int): FloatArray {
         return textVerticesGivenPosition(tileset.indicesIn2DForIndex(index))
@@ -173,6 +178,12 @@ class TiledMap(
 }
 
 @Serializable
+data class LayerData(
+    val data: List<String>,
+    val tileset: String? = null
+)
+
+@Serializable
 data class TiledMapData(
     val tileset: String,
     val chunkSize: Int = 16,
@@ -180,7 +191,7 @@ data class TiledMapData(
     val width: Int,
     val height: Int,
     val layersOrder: List<String>,
-    val layers: Map<String, List<String>>,
+    val layers: Map<String, LayerData>,
     val collisions: List<Int> = emptyList()
 )
 
