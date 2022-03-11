@@ -14,9 +14,6 @@ import com.ut3.hiddendoor.game.drawable.ImmutableRect
 import com.ut3.hiddendoor.game.utils.Vector2i
 import com.ut3.hiddendoor.game.utils.times
 import com.ut3.hiddendoor.game.utils.toVector2f
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import java.lang.Integer.min
@@ -43,8 +40,15 @@ class TiledMap(
     val bitmap get() = tileset.bitmap
 
     private val layers = let {
+        val tileSets = mutableMapOf<String, Tileset>()
+
         val res = data.layers.mapValues { (_, values) ->
-            values.mapIndexed { i, v ->
+            val currentTileset = tileSets[data.tileset]
+                ?: Tileset(data.tileset, data.chunkSize, data.tileSize.toInt(), context).also {
+                    tileSets[data.tileset] = it
+                }
+
+            currentTileset to values.data.mapIndexed { i, v ->
                 val interpretedValue = v.split(".").map(String::toInt)
                 val tx = interpretedValue[0]
                 val ty = interpretedValue.getOrElse(1) { if (tx == -1) -1 else 0 }
@@ -53,7 +57,8 @@ class TiledMap(
                 .mapValues { (_, v) -> v.groupBy { it.x / data.chunkSize } }
         }
 
-        res.mapValues { (_, layer) ->
+        res.mapValues { (_, tilesetAndLayer) ->
+            val (currentTileset, layer) = tilesetAndLayer
             layer.flatMap { (y, lines) ->
                 lines.map { (x, chunk) ->
                     // Chunk bounds in pixels
@@ -107,14 +112,14 @@ class TiledMap(
                                 rightTCoords, bottomTCoords
                             )
                         }.toFloatArray(),
-                        tileset = tileset,
+                        tileset = currentTileset,
                         rect = ImmutableRect(left, top, right, bottom),
                         chunkSize = Vector2i(data.chunkSize, data.chunkSize)
                     )
                 }
             }
         }
-    }
+    }.toSortedMap { o1, o2 -> data.layersOrder.indexOf(o1).compareTo(data.layersOrder.indexOf(o2)) }
 
     private val collisions = data.collisions.chunked(data.width).toMutableList().map { it.toMutableList() }
 
@@ -173,6 +178,12 @@ class TiledMap(
 }
 
 @Serializable
+data class LayerData(
+    val data: List<String>,
+    val tileset: String? = null
+)
+
+@Serializable
 data class TiledMapData(
     val tileset: String,
     val chunkSize: Int = 16,
@@ -180,7 +191,7 @@ data class TiledMapData(
     val width: Int,
     val height: Int,
     val layersOrder: List<String>,
-    val layers: Map<String, List<String>>,
+    val layers: Map<String, LayerData>,
     val collisions: List<Int> = emptyList()
 )
 

@@ -22,6 +22,7 @@ class IntroductionLevel(private val gameView: GameView) : EntityManager() {
 
     companion object {
         const val TILE_MAP_RESOURCE = R.raw.testmap
+        const val NAME = "introduction"
     }
 
     private lateinit var sound: MediaPlayer
