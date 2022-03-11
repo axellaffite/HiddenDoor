@@ -114,7 +114,7 @@ class TiledMap(
                 }
             }
         }
-    }
+    }.toSortedMap { o1, o2 -> data.layersOrder.indexOf(o1).compareTo(data.layersOrder.indexOf(o2)) }
 
     private val collisions = data.collisions.chunked(data.width).toMutableList().map { it.toMutableList() }
 
