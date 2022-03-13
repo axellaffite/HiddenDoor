@@ -23,7 +23,10 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
     private val hud = createHud(gameView) { controlButtons.isBVisible = false }
     private val player = createEntity { Player(gameView, tilemap, hud) }
     private val key = createEntity {
-        Key(gameView,hud,tilemap ,player) { move(200f, 350f ) }
+        Key(gameView,hud,tilemap ,player) { move(300f, 350f ) }
+    }
+    private val door = createEntity {
+        Door(gameView,hud,tilemap,player) { move( 544f, 392f)}
     }
 
     private val camera = createTrackingCamera(
@@ -55,6 +58,7 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
                     canvas.draw(tilemap, paint)
                     // Add key
                     canvas.draw(key,paint)
+                    canvas.draw(door,paint)
 
                     paint.color = Color.RED
                     canvas.draw(player, paint)

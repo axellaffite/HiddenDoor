@@ -29,7 +29,8 @@ class Key(
 
     var dx = 0f
     var dy = 0f
-    var keyAvailable: Boolean = false
+    var keyAvailable = false
+    var isAvailable = true
 
     private var lastUpdateAccelerometer = 0L
 
@@ -81,7 +82,17 @@ class Key(
             applyGravity(isTouchingGround(), delta)
             updatePosition(isTouchingGround(), delta)
         }
-        hud.controlButtons.isBVisible = rect.intersects(player.rect)
+        if (isAvailable) {
+            if (isTouchingGround()) {
+                setAction("gold")
+            }
+            hud.controlButtons.isBVisible = rect.intersects(player.rect)
+            if (hud.controlButtons.isBPressed && rect.intersects(player.rect)) {
+                setAction("destroy")
+                isAvailable = false
+                hud.controlButtons.isBVisible = false
+            }
+        }
     }
 
     override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {

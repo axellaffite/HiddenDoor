@@ -13,3 +13,7 @@ actions:
     index: 1
     count: 1
     time: -1
+  destroy:
+    index: 2
+    count: 1
+    time: -1
