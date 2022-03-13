@@ -11,6 +11,8 @@ import com.ut3.hiddendoor.game.drawable.sprites.AnimatedSprite
 import com.ut3.hiddendoor.game.drawable.tiledmap.TiledMap
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Player
+import com.ut3.hiddendoor.game.logic.isShaking
+import com.ut3.hiddendoor.game.utils.Preferences
 import com.ut3.hiddendoor.game.utils.Vector3f
 
 
@@ -24,18 +26,20 @@ class Key(
 
     companion object {
         const val SPEED = 8f
-        const val SHAKE_THRESHOLD = 800
     }
+
+    private val preferences = Preferences(gameView.context)
+    private val reference = preferences.referenceState
 
     var dx = 0f
     var dy = 0f
     var keyAvailable = false
-    var isAvailable = true
+    var playerHasKey = false
 
-    private var lastUpdateAccelerometer = 0L
+    private var shakingTime = 0f;
+    private var isShaking = false;
 
     var accelerometerLevel = Vector3f(0f, 0f, 0f)
-    var lastAccelerometerLevel = Vector3f(0f, 0f, 0f)
 
     init {
         conf()
@@ -53,7 +57,7 @@ class Key(
         ).any { tileValue -> tileValue == 1 }
     }
 
-    fun updatePosition(isTouchingGround: Boolean, delta: Float) {
+    fun updatePosition(delta: Float) {
         let {
             val tmp = rect.copyOfUnderlyingRect.apply { offset(0f, dy * delta * SPEED) }
             if (tilemap.collisionTilesIntersecting(tmp).any { it == 1 }) {
@@ -67,30 +71,36 @@ class Key(
         if (!tilemap.collisionTilesIntersecting(tmp).any { it == 1 }) {
             rect = ImmutableRect(tmp)
         }
+
     }
 
     override fun handleInput(inputState: InputState) {
-        accelerometerLevel = inputState.acceleration
-        if (!keyAvailable) {
-            shakeDetector()
+        if(!keyAvailable) {
+            isShaking = inputState.isShaking(reference.acceleration)
         }
+
     }
 
     override fun update(delta: Float) {
         super.update(delta)
+        if(isShaking && !keyAvailable) {
+            shakingTime += delta
+            if (shakingTime > 1) {
+                keyAvailable = true
+            }
+        }
         if (keyAvailable) {
             applyGravity(isTouchingGround(), delta)
-            updatePosition(isTouchingGround(), delta)
+            updatePosition(delta)
         }
-        if (isAvailable) {
+        if (!playerHasKey) {
             if (isTouchingGround()) {
                 setAction("gold")
             }
-            hud.controlButtons.isBVisible = rect.intersects(player.rect)
+            hud.controlButtons.isBVisible = rect.intersects(player.rect) && !playerHasKey
             if (hud.controlButtons.isBPressed && rect.intersects(player.rect)) {
                 setAction("destroy")
-                isAvailable = false
-                hud.controlButtons.isBVisible = false
+                playerHasKey = true
             }
         }
     }
@@ -98,22 +108,4 @@ class Key(
     override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {
         super.drawOnCanvas(bounds, surfaceHolder, paint)
     }
-
-    private fun shakeDetector() {
-        var curTime = System.currentTimeMillis()
-        if (curTime - lastUpdateAccelerometer > 100) {
-            val diffTime: Long = curTime - lastUpdateAccelerometer
-            lastUpdateAccelerometer = curTime
-            val x = accelerometerLevel.x
-            val y = accelerometerLevel.y
-            val z = accelerometerLevel.z
-            val speed: Float =
-                Math.abs(x + y + z - lastAccelerometerLevel.x - lastAccelerometerLevel.y - lastAccelerometerLevel.z) / diffTime * 10000
-            if (speed > SHAKE_THRESHOLD) {
-                keyAvailable = true
-            }
-            lastAccelerometerLevel = accelerometerLevel
-        }
-    }
-
 }

@@ -15,9 +15,11 @@ class Door(
     val gameView: GameView, private val hud: HUD,
     private val tilemap: TiledMap,
     private val player: Player,
+    private val key: Key,
     conf: Door.() -> Unit
 ) : AnimatedSprite(gameView.context, R.raw.door, "close") {
 
+    var doorOpened = false
 
     init {
         conf()
@@ -29,10 +31,10 @@ class Door(
 
     override fun update(delta: Float) {
         super.update(delta)
-        hud.controlButtons.isBVisible = rect.intersects(player.rect)
-        if (hud.controlButtons.isBPressed && rect.intersects(player.rect)) {
-            openDoor()
-            hud.controlButtons.isBVisible = false
+        hud.controlButtons.isBVisible = (rect.intersects(player.rect) && !doorOpened && key.playerHasKey) || (key.rect.intersects(player.rect) && !key.playerHasKey)
+        if (hud.controlButtons.isBPressed && rect.intersects(player.rect) && key.playerHasKey) {
+            setAction("open")
+            doorOpened = true
         }
     }
 
@@ -40,8 +42,4 @@ class Door(
         super.drawOnCanvas(bounds, surfaceHolder, paint)
     }
 
-    fun openDoor() {
-        setAction("openAnim")
-        setAction("open")
-    }
 }

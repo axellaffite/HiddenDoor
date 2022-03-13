@@ -3,6 +3,7 @@ package com.ut3.hiddendoor.game.levels.level3
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.media.MediaPlayer
 import androidx.core.graphics.withSave
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView
@@ -26,8 +27,9 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
         Key(gameView,hud,tilemap ,player) { move(300f, 350f ) }
     }
     private val door = createEntity {
-        Door(gameView,hud,tilemap,player) { move( 544f, 392f)}
+        Door(gameView,hud,tilemap,player,key) { move( 544f, 392f)}
     }
+    private lateinit var sound: MediaPlayer
 
     private val camera = createTrackingCamera(
         screenPosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),
@@ -37,6 +39,15 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
 
 
     override fun onLoad() {
+        sound = MediaPlayer.create(gameView.context, R.raw.ambiance_sound).apply {
+            isLooping = true
+            start()
+        }
+    }
+
+    override fun clean() {
+        super.clean()
+        sound.stop()
     }
 
     override fun onSaveState() {
@@ -56,8 +67,9 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
 
                 withCamera(camera) { canvas, paint ->
                     canvas.draw(tilemap, paint)
-                    // Add key
+
                     canvas.draw(key,paint)
+
                     canvas.draw(door,paint)
 
                     paint.color = Color.RED
