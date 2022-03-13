@@ -10,7 +10,7 @@ class Preferences(val context: Context) {
         context.getSharedPreferences("preferences", Context.MODE_PRIVATE)
 
     var currentLevel: String
-        get() = sharedPreferences.getString("current_level", "hiddenKeyLevel")!!
+        get() = sharedPreferences.getString("current_level", "introduction")!!
         set(value) = sharedPreferences.edit { putString("current_level", value) }
 
     var luminosityReference: Float

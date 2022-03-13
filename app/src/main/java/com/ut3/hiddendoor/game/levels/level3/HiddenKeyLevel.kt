@@ -1,10 +1,13 @@
 package com.ut3.hiddendoor.game.levels.level3
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.media.MediaPlayer
 import androidx.core.graphics.withSave
+import com.ut3.hiddendoor.MainActivity
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.drawable.cameras.createTrackingCamera
@@ -14,6 +17,7 @@ import com.ut3.hiddendoor.game.levels.introduction.IntroductionLevel
 import com.ut3.hiddendoor.game.logic.EntityManager
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Player
+import com.ut3.hiddendoor.game.utils.Preferences
 
 class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
     companion object {
@@ -21,13 +25,14 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
         const val NAME = "hiddenKeyLevel"
     }
     private val tilemap = gameView.context.loadTiledMap(HiddenKeyLevel.TILE_MAP_RESOURCE)
+    private val preferences = Preferences(gameView.context)
     private val hud = createHud(gameView) { controlButtons.isBVisible = false }
     private val player = createEntity { Player(gameView, tilemap, hud) }
     private val key = createEntity {
-        Key(gameView,hud,tilemap ,player) { move(300f, 350f ) }
+        Key(gameView,hud,tilemap ,player,preferences) { move(300f, 350f ) }
     }
     private val door = createEntity {
-        Door(gameView,hud,tilemap,player,key) { move( 544f, 392f)}
+        Door(gameView,hud,player,key) { move( 544f, 392f)}
     }
     private lateinit var sound: MediaPlayer
 
@@ -55,6 +60,16 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
 
     override fun handleInput(inputState: InputState) {
         super.handleInput(inputState)
+        if (hud.controlButtons.isBPressed && door.doorOpened && player.rect.intersects(door.rect)) {
+            preferences.currentLevel = "introduction"
+            val activity = gameView.context as Activity
+            val intent = Intent(gameView.context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+            }
+            sound.apply { stop() }
+            gameView.context.startActivity(intent)
+            activity.finish()
+        }
     }
 
     override fun render() {

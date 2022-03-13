@@ -13,7 +13,6 @@ import com.ut3.hiddendoor.game.logic.Player
 
 class Door(
     val gameView: GameView, private val hud: HUD,
-    private val tilemap: TiledMap,
     private val player: Player,
     private val key: Key,
     conf: Door.() -> Unit
@@ -31,8 +30,10 @@ class Door(
 
     override fun update(delta: Float) {
         super.update(delta)
-        hud.controlButtons.isBVisible = (rect.intersects(player.rect) && !doorOpened && key.playerHasKey) || (key.rect.intersects(player.rect) && !key.playerHasKey)
-        if (hud.controlButtons.isBPressed && rect.intersects(player.rect) && key.playerHasKey) {
+        hud.controlButtons.isBVisible =
+            (rect.intersects(player.rect) && key.playerHasKey)
+                    || (key.rect.intersects(player.rect) && !key.playerHasKey)
+        if (rect.intersects(player.rect) && key.playerHasKey) {
             setAction("open")
             doorOpened = true
         }

@@ -22,6 +22,7 @@ import com.ut3.hiddendoor.game.levels.introduction.Lever
 import com.ut3.hiddendoor.game.logic.EntityManager
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Player
+import com.ut3.hiddendoor.game.utils.Preferences
 import com.ut3.hiddendoor.game.utils.Vector2f
 import org.w3c.dom.Text
 
@@ -36,13 +37,10 @@ class HomeLevel(private val gameView: GameView) : EntityManager() {
 
     private var popup : TextPopUp? = null
     private var levelTouched = -1
-    private var fps = 0
+    private val preferences = Preferences(gameView.context)
     private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
     private val hud = createHud(gameView) { controlButtons.isBVisible = false }
     private val player = createEntity { Player(gameView, tilemap, hud) }
-    private val bridge = createEntity {
-        Bridge(x = 18, y = 29, blockCount = 8, tilemap = tilemap, player = player)
-    }
 
     private val camera = createTrackingCamera(
         screenPosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),
@@ -101,10 +99,16 @@ class HomeLevel(private val gameView: GameView) : EntityManager() {
     override fun handleInput(inputState: InputState) {
         super.handleInput(inputState)
         if(levelTouched != -1 && hud.controlButtons.isBPressed){
+            when(levelTouched) {
+                1 -> preferences.currentLevel = "introduction"
+                2 -> preferences.currentLevel = "introduction"
+                3 -> preferences.currentLevel = "hiddenKeyLevel"
+            }
             val activity = gameView.context as Activity
             val intent = Intent(gameView.context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
             }
+            sound.apply { stop() }
             gameView.context.startActivity(intent)
             activity.finish()
         }

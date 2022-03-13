@@ -21,6 +21,7 @@ class Key(
     private val hud: HUD,
     private val tilemap: TiledMap,
     private val player: Player,
+    private val preferences: Preferences,
     conf: Key.() -> Unit
 ) : AnimatedSprite(gameView.context, R.raw.key, "silver") {
 
@@ -28,7 +29,6 @@ class Key(
         const val SPEED = 8f
     }
 
-    private val preferences = Preferences(gameView.context)
     private val reference = preferences.referenceState
 
     var dx = 0f
