@@ -3,33 +3,10 @@ package com.ut3.hiddendoor
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
-import androidx.appcompat.app.AppCompatActivity
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.levels.HomeLevel
-import com.ut3.hiddendoor.game.logic.GameLogic
 
-class HomeActivity : AppCompatActivity() {
-
-    lateinit var logic: GameLogic
-
-    override fun onPause() {
-        if (this::logic.isInitialized) {
-            logic.stop()
-        }
-
-        super.onPause()
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (this::logic.isInitialized) {
-            logic.start()
-        }
-    }
+class HomeActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,12 +18,8 @@ class HomeActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-        val gameView = GameView(this)
+        gameView = GameView(this, levelToLoad = HomeLevel.NAME)
         setContentView(gameView)
-
-        gameView.post {
-            logic = GameLogic(gameView,levelToLoad = HomeLevel.NAME)
-            logic.start()
-        }
     }
+
 }

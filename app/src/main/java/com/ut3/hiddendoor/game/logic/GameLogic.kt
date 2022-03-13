@@ -1,5 +1,6 @@
 package com.ut3.hiddendoor.game.logic
 
+import android.app.Activity
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.levels.HomeLevel
 import com.ut3.hiddendoor.game.levels.LevelFactory
@@ -11,7 +12,7 @@ import kotlin.concurrent.schedule
 import kotlin.concurrent.thread
 
 
-class GameLogic(gameView: GameView, levelToLoad : String? = null): Logic {
+class GameLogic(activity: Activity, gameView: GameView, levelToLoad: String? = null) : Logic {
 
     companion object {
         private const val TARGET_FPS = 30L
@@ -28,7 +29,12 @@ class GameLogic(gameView: GameView, levelToLoad : String? = null): Logic {
 
     private val timer = Timer()
 
-    private val level = LevelFactory.getLevel(levelToLoad ?: preferences.currentLevel, gameView)
+    private val level = LevelFactory.getLevel(
+        levelToLoad ?: preferences.currentLevel,
+        gameView,
+        activity = activity,
+        gameLogic = this
+    )
         ?: throw IllegalStateException("Unable to load level ${preferences.currentLevel}")
 
     private fun generateThread() = thread(start = false) {
@@ -62,7 +68,6 @@ class GameLogic(gameView: GameView, levelToLoad : String? = null): Logic {
             val deltaMs = (currentTime - previousUpdate)
             val deltaS = deltaMs / 1000f
             previousUpdate = currentTime
-
 
             level.handleInput(state)
             level.update(deltaS)
