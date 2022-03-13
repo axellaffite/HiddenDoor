@@ -93,6 +93,10 @@ abstract class AnimatedSprite(
             return
         }
 
+        if (!currentAction.loop && isAnimationFinished) {
+            return
+        }
+
         if (timeSinceLastUpdate >= currentAction.time) {
             timeSinceLastUpdate = 0f
             actionIndexOffset = (actionIndexOffset + 1) % currentAction.count
