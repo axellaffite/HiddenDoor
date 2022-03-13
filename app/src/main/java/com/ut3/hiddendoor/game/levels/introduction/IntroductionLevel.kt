@@ -79,6 +79,7 @@ class IntroductionLevel(private val gameView: GameView) : EntityManager() {
     }
 
     override fun render() {
+        println("rendering")
         gameView.draw { canvas, paint ->
             canvas.withSave {
                 val scaleFactor = ((gameView.width / tilemap.tileSize) / 18f)
