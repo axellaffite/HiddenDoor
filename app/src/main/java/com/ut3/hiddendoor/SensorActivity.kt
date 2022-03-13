@@ -99,7 +99,7 @@ class SensorActivity: AppCompatActivity() {
                 preferences.accelerationReference = referenceState.acceleration
                 preferences.orientationReference = referenceState.orientation
 
-                val intent = Intent(this@SensorActivity, MainActivity::class.java).apply {
+                val intent = Intent(this@SensorActivity, HomeActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
                 }
                 startActivity(intent)

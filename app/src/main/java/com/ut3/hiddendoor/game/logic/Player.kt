@@ -98,6 +98,11 @@ class Player(
         ).any { tileValue -> tileValue == 1 }
     }
 
+    val isTouchingLevel1 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == 3 }
+    val isTouchingLevel2 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == 4 }
+    val isTouchingLevel3 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == 5 }
+    val isTouchingLevel4 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == 6 }
+
     private fun shouldBeDead(): Boolean {
         return isDead || tilemap.collisionTilesIntersecting(rect.copyOfUnderlyingRect)
             .any { it == 0 }
