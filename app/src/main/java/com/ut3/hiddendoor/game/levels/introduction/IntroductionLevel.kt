@@ -12,6 +12,7 @@ import com.ut3.hiddendoor.game.drawable.tiledmap.loadTiledMap
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.EntityManager
 import com.ut3.hiddendoor.game.logic.Player
+import com.ut3.hiddendoor.game.utils.Preferences
 import com.ut3.hiddendoor.game.utils.Vector2i
 import java.util.*
 import kotlin.concurrent.timerTask
@@ -25,6 +26,8 @@ class IntroductionLevel(private val gameView: GameView) : EntityManager() {
         const val NAME = "introduction"
     }
 
+    private val preferences = Preferences(gameView.context)
+    private val luminosityReference = preferences.luminosityReference
     private lateinit var sound: MediaPlayer
     private var luminosityLevel = 0f
     private var nightAlpha = 0
@@ -36,7 +39,7 @@ class IntroductionLevel(private val gameView: GameView) : EntityManager() {
     private val bridge = createEntity {
         Bridge(x = 18, y = 29, blockCount = 8, tilemap = tilemap, player = player)
     }
-    private val lever = createEntity { Lever(gameView, hud, player, bridge) { move(200f, 448f) } }
+    private val lever = createEntity { Lever(gameView, hud, player, bridge, ::nightAlpha) { move(200f, 448f) } }
 
     private val camera = createTrackingCamera(
         screenPosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),
@@ -61,65 +64,52 @@ class IntroductionLevel(private val gameView: GameView) : EntityManager() {
     }
 
     override fun handleInput(inputState: InputState) {
-        val time = measureTimeMillis {
-            super.handleInput(inputState)
+        super.handleInput(inputState)
 
-            luminosityLevel = inputState.luminosity
-        }
-//        println("time to handle $time")
+        luminosityLevel = inputState.luminosity
     }
 
     override fun update(delta: Float) {
-        val time = measureTimeMillis {
-            super.update(delta)
+        super.update(delta)
 
-            nightAlpha = ((80f - luminosityLevel).coerceAtLeast(0f) * (250f / 80f)).toInt()
-            fps = (1f / delta).toInt()
-        }
-
-
-//        println(
-//            "time to update: ${time}ms"
-//        )
+        val threshold = luminosityReference / 2
+        nightAlpha = ((threshold - (luminosityLevel * 4f / 3f)).coerceAtLeast(0f) * (255f / threshold)).toInt()
+        println("$threshold $luminosityLevel $nightAlpha")
+        fps = (1f / delta).toInt()
     }
 
     override fun render() {
-        val time = measureTimeMillis {
-            gameView.draw { canvas, paint ->
-                canvas.withSave {
-                    val scaleFactor = ((gameView.width / tilemap.tileSize) / 18f)
-                    canvas.scale(scaleFactor, scaleFactor, gameView.width / 2f, gameView.height / 2f)
-                    canvas.drawColor(Color.BLUE)
+        println("rendering")
+        gameView.draw { canvas, paint ->
+            canvas.withSave {
+                val scaleFactor = ((gameView.width / tilemap.tileSize) / 18f)
+                canvas.scale(scaleFactor, scaleFactor, gameView.width / 2f, gameView.height / 2f)
+                canvas.drawColor(Color.BLUE)
 
-                    withCamera(camera) { canvas, paint ->
-                        canvas.draw(tilemap, paint)
+                withCamera(camera) { canvas, paint ->
+                    canvas.draw(tilemap, paint)
 
-                        paint.color = Color.RED
-                        canvas.draw(player, paint)
-                        canvas.draw(bridge, paint)
+                    paint.color = Color.RED
+                    canvas.draw(player, paint)
+                    canvas.draw(bridge, paint)
 
-                        canvas.drawRect(
-                            0f,
-                            0f,
-                            canvas.width.toFloat(),
-                            canvas.height.toFloat(),
-                            Paint().apply {
-                                color = 0
-                                alpha = nightAlpha
-                            }
-                        )
+                    canvas.drawRect(
+                        0f,
+                        0f,
+                        canvas.width.toFloat(),
+                        canvas.height.toFloat(),
+                        Paint().apply {
+                            color = 0
+                            alpha = nightAlpha
+                        }
+                    )
 
-                        canvas.draw(lever, paint)
-                    }
+                    canvas.draw(lever, paint)
                 }
-
-
-                hud.draw(gameView.rect, canvas, paint)
             }
-        }
 
-        if (time > 50) {
-            println("time to draw: $time")
+
+            hud.draw(gameView.rect, canvas, paint)
         }
     }
 
