@@ -2,7 +2,10 @@ package com.ut3.hiddendoor.game
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.RectF
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
@@ -18,7 +21,6 @@ class GameView(context: Context, private val levelToLoad: String? = null): Surfa
     init {
         setLayerType(View.LAYER_TYPE_HARDWARE, null)
         keepScreenOn = true
-
         holder.addCallback(this)
     }
 
@@ -29,19 +31,16 @@ class GameView(context: Context, private val levelToLoad: String? = null): Surfa
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-        logic = GameLogic(context as Activity, this, levelToLoad = levelToLoad)
-        logic.start()
+        post {
+            logic = GameLogic(context as Activity, this, levelToLoad = levelToLoad)
+            logic.start()
+        }
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) = Unit
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         logic.stop()
-    }
-
-    override fun draw(canvas: Canvas) {
-        super.draw(canvas)
-        logic.render()
     }
 
     inner class DrawingContext {
