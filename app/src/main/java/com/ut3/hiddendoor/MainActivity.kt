@@ -10,6 +10,7 @@ import com.ut3.hiddendoor.game.GameView
 class MainActivity : AppCompatActivity() {
 
     lateinit var logic: GameLogic
+    lateinit var gameView: GameView
 
     override fun onPause() {
         if (this::logic.isInitialized) {
@@ -19,15 +20,14 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
     }
 
-    override fun onRestart() {
-        super.onRestart()
-    }
-
     override fun onResume() {
-        super.onResume()
         if (this::logic.isInitialized) {
             logic.start()
         }
+
+        setContentView(gameView)
+
+        super.onResume()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-        val gameView = GameView(this)
+        gameView = GameView(this)
         setContentView(gameView)
 
         gameView.post {

@@ -21,7 +21,7 @@ import kotlin.math.ceil
 
 class TiledMap(
     private val data: TiledMapData,
-    context: Context
+    private val context: Context
 ) : Drawable {
 
     private data class Tile(
@@ -35,18 +35,15 @@ class TiledMap(
     val width = data.width
     val height = data.height
 
-    private val tileset = Tileset(data.tileset, data.chunkSize, data.tileSize.toInt(), context)
+    private val availableTilesets = mutableMapOf<String, Tileset>()
+    private val tileset = getOrLoadTileset(data.tileset)
 
     val bitmap get() = tileset.bitmap
 
     private val layers = let {
-        val tileSets = mutableMapOf<String, Tileset>()
 
         val res = data.layers.mapValues { (_, values) ->
-            val currentTileset = tileSets[data.tileset]
-                ?: Tileset(data.tileset, data.chunkSize, data.tileSize.toInt(), context).also {
-                    tileSets[data.tileset] = it
-                }
+            val currentTileset = getOrLoadTileset(values.tileset ?: data.tileset)
 
             currentTileset to values.data.mapIndexed { i, v ->
                 val interpretedValue = v.split(".").map(String::toInt)
@@ -130,7 +127,10 @@ class TiledMap(
         data.height * data.tileSize
     )
 
-
+    private fun getOrLoadTileset(res: String): Tileset {
+        return availableTilesets[res]
+            ?: Tileset(res, data.chunkSize, data.tileSize.toInt(), context).also { availableTilesets[res] = it }
+    }
 
     fun textVerticesGivenIndex(index: Int): FloatArray {
         return textVerticesGivenPosition(tileset.indicesIn2DForIndex(index))
