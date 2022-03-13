@@ -11,7 +11,7 @@ import kotlin.concurrent.schedule
 import kotlin.concurrent.thread
 
 
-class GameLogic(gameView: GameView): Logic {
+class GameLogic(gameView: GameView, levelToLoad : String? = null): Logic {
 
     companion object {
         private const val TARGET_FPS = 30L
@@ -28,7 +28,7 @@ class GameLogic(gameView: GameView): Logic {
 
     private val timer = Timer()
 
-    private val level = LevelFactory.getLevel(HomeLevel.NAME, gameView)
+    private val level = LevelFactory.getLevel(levelToLoad ?: preferences.currentLevel, gameView)
         ?: throw IllegalStateException("Unable to load level ${preferences.currentLevel}")
 
     private fun generateThread() = thread(start = false) {

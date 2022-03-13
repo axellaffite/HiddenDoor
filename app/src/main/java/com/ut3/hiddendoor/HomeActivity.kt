@@ -5,6 +5,7 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.ut3.hiddendoor.game.GameView
+import com.ut3.hiddendoor.game.levels.HomeLevel
 import com.ut3.hiddendoor.game.logic.GameLogic
 
 class HomeActivity : AppCompatActivity() {
@@ -44,7 +45,7 @@ class HomeActivity : AppCompatActivity() {
         setContentView(gameView)
 
         gameView.post {
-            logic = GameLogic(gameView)
+            logic = GameLogic(gameView,levelToLoad = HomeLevel.NAME)
             logic.start()
         }
     }
