@@ -22,11 +22,10 @@ import com.ut3.hiddendoor.game.levels.introduction.Lever
 import com.ut3.hiddendoor.game.logic.EntityManager
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Player
-import com.ut3.hiddendoor.game.utils.Preferences
 import com.ut3.hiddendoor.game.utils.Vector2f
 import org.w3c.dom.Text
 
-class HomeLevel(private val gameView: GameView) : EntityManager() {
+class HomeLevel(private val gameView: GameView, private val launchNewActivity: () -> Unit) : EntityManager() {
 
     companion object {
         const val TILE_MAP_RESOURCE = R.raw.home
@@ -34,13 +33,12 @@ class HomeLevel(private val gameView: GameView) : EntityManager() {
     }
 
     private lateinit var sound: MediaPlayer
-
     private var popup : TextPopUp? = null
     private var levelTouched = -1
-    private val preferences = Preferences(gameView.context)
     private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
     private val hud = createHud(gameView) { controlButtons.isBVisible = false }
     private val player = createEntity { Player(gameView, tilemap, hud) }
+    private var levelLaunched = false
 
     private val camera = createTrackingCamera(
         screenPosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),
@@ -55,8 +53,36 @@ class HomeLevel(private val gameView: GameView) : EntityManager() {
         }
     }
 
+    override fun clean() {
+        super.clean()
+        sound.stop()
+        sound.release()
+    }
+
     override fun onSaveState() {
         TODO("save state of the level")
+    }
+
+    override fun handleInput(inputState: InputState) {
+        super.handleInput(inputState)
+
+        if (!levelLaunched && levelTouched != -1 && hud.controlButtons.isBPressed) {
+            levelLaunched = true
+            launchNewActivity()
+        }
+    }
+
+    override fun update(delta: Float) {
+        super.update(delta)
+        levelTouched = when {
+            player.isTouchingLevel1 -> 1
+            player.isTouchingLevel2 -> 2
+            player.isTouchingLevel3 -> 3
+            player.isTouchingLevel4 -> 4
+            else -> -1
+        }
+        popup = levelTouched.takeIf { it != -1 }?.let { TextPopUp("Play level $it", Vector2f(player.rect.left, player.rect.top)) }
+        hud.controlButtons.isBVisible = popup != null
     }
 
     override fun render() {
@@ -79,38 +105,6 @@ class HomeLevel(private val gameView: GameView) : EntityManager() {
 
 
             hud.draw(gameView.rect, canvas, paint)
-
-        }
-    }
-
-    override fun update(delta: Float) {
-        super.update(delta)
-        levelTouched = when {
-            player.isTouchingLevel1 -> 1
-            player.isTouchingLevel2 -> 2
-            player.isTouchingLevel3 -> 3
-            player.isTouchingLevel4 -> 4
-            else -> -1
-        }
-        popup = levelTouched.takeIf { it != -1 }?.let { TextPopUp("Play level $it", Vector2f(player.rect.left, player.rect.top)) }
-        hud.controlButtons.isBVisible = popup != null
-    }
-
-    override fun handleInput(inputState: InputState) {
-        super.handleInput(inputState)
-        if(levelTouched != -1 && hud.controlButtons.isBPressed){
-            when(levelTouched) {
-                1 -> preferences.currentLevel = "introduction"
-                2 -> preferences.currentLevel = "introduction"
-                3 -> preferences.currentLevel = "hiddenKeyLevel"
-            }
-            val activity = gameView.context as Activity
-            val intent = Intent(gameView.context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-            }
-            sound.apply { stop() }
-            gameView.context.startActivity(intent)
-            activity.finish()
         }
     }
 }

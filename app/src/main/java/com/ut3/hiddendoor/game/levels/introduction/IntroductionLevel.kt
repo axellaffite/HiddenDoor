@@ -1,8 +1,10 @@
 package com.ut3.hiddendoor.game.levels.introduction
 
+import android.app.Activity
 import android.graphics.*
 import android.media.MediaPlayer
 import androidx.core.graphics.withSave
+import androidx.core.graphics.withScale
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.drawable.sprites.AnimatedSprite
@@ -19,7 +21,7 @@ import kotlin.concurrent.timerTask
 import kotlin.system.measureTimeMillis
 
 
-class IntroductionLevel(private val gameView: GameView) : EntityManager() {
+class IntroductionLevel(private val gameView: GameView, activity: Activity) : EntityManager() {
 
     companion object {
         const val TILE_MAP_RESOURCE = R.raw.testmap
@@ -28,18 +30,25 @@ class IntroductionLevel(private val gameView: GameView) : EntityManager() {
 
     private val preferences = Preferences(gameView.context)
     private val luminosityReference = preferences.luminosityReference
+    private val threshold = luminosityReference / 2
+
     private lateinit var sound: MediaPlayer
     private var luminosityLevel = 0f
     private var nightAlpha = 0
 
-    private var fps = 0
     private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
     private val hud = createHud(gameView) { controlButtons.isBVisible = false }
     private val player = createEntity { Player(gameView, tilemap, hud) }
+
     private val bridge = createEntity {
         Bridge(x = 18, y = 29, blockCount = 8, tilemap = tilemap, player = player)
     }
-    private val lever = createEntity { Lever(gameView, hud, player, bridge, ::nightAlpha) { move(200f, 448f) } }
+
+    private val lever = createEntity {
+        Lever(gameView, hud, player, bridge, ::nightAlpha) {
+            moveTo(200f, 448f)
+        }
+    }
 
     private val camera = createTrackingCamera(
         screenPosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),
@@ -65,31 +74,26 @@ class IntroductionLevel(private val gameView: GameView) : EntityManager() {
 
     override fun handleInput(inputState: InputState) {
         super.handleInput(inputState)
-
         luminosityLevel = inputState.luminosity
     }
 
     override fun update(delta: Float) {
         super.update(delta)
 
-        val threshold = luminosityReference / 2
-        nightAlpha = ((threshold - (luminosityLevel * 4f / 3f)).coerceAtLeast(0f) * (255f / threshold)).toInt()
-        println("$threshold $luminosityLevel $nightAlpha")
-        fps = (1f / delta).toInt()
+        val rawAlpha = (threshold - (luminosityLevel * 4f / 3f)).coerceAtLeast(0f)
+        nightAlpha = (rawAlpha * (255f / threshold)).toInt()
     }
 
     override fun render() {
-        println("rendering")
         gameView.draw { canvas, paint ->
-            canvas.withSave {
-                val scaleFactor = ((gameView.width / tilemap.tileSize) / 18f)
-                canvas.scale(scaleFactor, scaleFactor, gameView.width / 2f, gameView.height / 2f)
+            val scaleFactor = ((gameView.width / tilemap.tileSize) / 18f)
+            val (pivotX, pivotY) = gameView.width / 2f to gameView.height / 2f
+
+            canvas.withScale(x = scaleFactor, y = scaleFactor, pivotX = pivotX, pivotY = pivotY) {
                 canvas.drawColor(Color.BLUE)
 
                 withCamera(camera) { canvas, paint ->
                     canvas.draw(tilemap, paint)
-
-                    paint.color = Color.RED
                     canvas.draw(player, paint)
                     canvas.draw(bridge, paint)
 
@@ -107,7 +111,6 @@ class IntroductionLevel(private val gameView: GameView) : EntityManager() {
                     canvas.draw(lever, paint)
                 }
             }
-
 
             hud.draw(gameView.rect, canvas, paint)
         }
