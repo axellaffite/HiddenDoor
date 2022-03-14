@@ -1,7 +1,11 @@
 package com.ut3.hiddendoor.game.logic
 
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.RectF
 import android.media.MediaPlayer
+import android.util.Log
+import androidx.core.graphics.withScale
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.drawable.Drawable
@@ -36,6 +40,7 @@ class Player(
     private var isJumping = false
     private var isDead = false
     private var reactToEnvironment = true
+    private var isUpsideDown = false
     var dx = 0f
     var dy = 0f
     var gravity = ROTATION.STRAIGHT;
@@ -54,6 +59,10 @@ class Player(
         isJumping = false
         dx = 0f
         dy = 0f
+    }
+
+    fun flipUpsideDown(flipped: Boolean) {
+        isUpsideDown = flipped
     }
 
     override fun handleInput(inputState: InputState) {
@@ -82,6 +91,7 @@ class Player(
 
         if (reactToEnvironment) {
             val isTouchingGround = isTouchingGround()
+            Log.d("TOUCHINGGROUND",isTouchingGround.toString())
             applyGravity(isTouchingGround, delta)
             moveIfRequired(isTouchingGround, delta)
             jump { hud.controlButtons.isAPressed && isTouchingGround }
@@ -98,9 +108,15 @@ class Player(
     }
 
     private fun isTouchingGround(): Boolean {
-        return tilemap.collisionTilesIntersecting(
-            RectF(rect.left, rect.bottom, rect.right, rect.bottom + 1f)
-        ).any { tileValue -> tileValue == 1 }
+        return if (isUpsideDown) {
+            tilemap.collisionTilesIntersecting(
+                RectF(rect.left, rect.top-1, rect.right, rect.top)
+            ).any { tileValue -> tileValue == 1 }
+        } else {
+            tilemap.collisionTilesIntersecting(
+                RectF(rect.left, rect.bottom, rect.right, rect.bottom + 1f)
+            ).any { tileValue -> tileValue == 1 }
+        }
     }
 
     private fun shouldBeDead(): Boolean {
@@ -152,11 +168,20 @@ class Player(
     }
 
     private fun jump(predicate: () -> Boolean = { true }) {
-        if (predicate()) {
-            dy -= 6f
+        if (isUpsideDown) {
+            if (predicate()) {
+                dy += 6f
+            } else {
+                isJumping = false
+            }
         } else {
-            isJumping = false
+            if (predicate()) {
+                dy -= 6f
+            } else {
+                isJumping = false
+            }
         }
+
     }
 
     private fun applyGravity(isTouchingGround: Boolean, delta: Float) {
@@ -191,4 +216,14 @@ class Player(
 
     fun center() = Vector2f(rect.centerX, rect.centerY)
 
+    override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {
+        if (isUpsideDown) {
+            val (pivotX, pivotY) = center()
+            surfaceHolder.withScale(y = -1f, pivotX = pivotX, pivotY = pivotY) {
+                super.drawOnCanvas(bounds, surfaceHolder, paint)
+            }
+        } else {
+            super.drawOnCanvas(bounds, surfaceHolder, paint)
+        }
+    }
 }

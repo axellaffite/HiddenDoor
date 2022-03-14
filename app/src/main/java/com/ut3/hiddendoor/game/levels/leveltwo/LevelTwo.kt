@@ -20,7 +20,7 @@ class LevelTwo(private val gameView: GameView) : EntityManager() {
 
     companion object {
         const val TILE_MAP_RESOURCE = R.raw.level2
-        private const val REVERSED_THRESHOLD  = -0.4
+        private const val REVERSED_THRESHOLD  = 0.1
     }
     private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
     private lateinit var sound : MediaPlayer
@@ -48,7 +48,13 @@ class LevelTwo(private val gameView: GameView) : EntityManager() {
 
     override fun handleInput(inputState: InputState) {
         super.handleInput(inputState)
-        updateRotation(inputState.rotation)
+        val isUpsideDown = inputState.upsideDown
+        player.flipUpsideDown(inputState.upsideDown)
+        if (isUpsideDown) {
+            player.changeRotation(Player.ROTATION.REVERSED)
+        }else {
+            player.changeRotation(Player.ROTATION.STRAIGHT)
+        }
     }
 
     override fun onSaveState() {
@@ -56,15 +62,6 @@ class LevelTwo(private val gameView: GameView) : EntityManager() {
 
     override fun update(delta: Float) {
         super.update(delta)
-    }
-
-    private fun updateRotation(gyroscope : Vector3f) {
-        this.gyroscope = gyroscope
-        if (gyroscope.y > REVERSED_THRESHOLD) {
-            player.changeRotation(Player.ROTATION.REVERSED)
-        } else {
-            player.changeRotation(Player.ROTATION.STRAIGHT)
-        }
     }
 
     override fun render() {
@@ -91,8 +88,6 @@ class LevelTwo(private val gameView: GameView) : EntityManager() {
                     )
                 }
             }
-
-
             hud.draw(gameView.rect, canvas, paint)
         }
     }

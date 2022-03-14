@@ -10,6 +10,7 @@ interface InputState {
     val acceleration: Vector2f
     val orientation: Vector2f
     val rotation: Vector3f
+    val upsideDown : Boolean
 }
 
 data class MutableInputState(
@@ -17,5 +18,6 @@ data class MutableInputState(
     override var acceleration: Vector2f,
     override var luminosity: Float,
     override var orientation: Vector2f,
-    override var rotation: Vector3f
+    override var rotation: Vector3f,
+    override var upsideDown : Boolean
 ): InputState
