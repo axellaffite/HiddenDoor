@@ -91,7 +91,6 @@ class Player(
 
         if (reactToEnvironment) {
             val isTouchingGround = isTouchingGround()
-            Log.d("TOUCHINGGROUND",isTouchingGround.toString())
             applyGravity(isTouchingGround, delta)
             moveIfRequired(isTouchingGround, delta)
             jump { hud.controlButtons.isAPressed && isTouchingGround }

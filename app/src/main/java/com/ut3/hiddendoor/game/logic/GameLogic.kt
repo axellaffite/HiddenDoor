@@ -38,7 +38,7 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener, Se
         private const val UPSIDE_DOWN_ANGLE = 270
     }
     var sensorManager : SensorManager = gameView.context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-    var rotationSensor : Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+    var rotationSensor : Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
     init {
         sensorManager.registerListener(this,rotationSensor, SENSOR_DELAY_FASTEST)
@@ -172,11 +172,12 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener, Se
 
     override fun onSensorChanged(event: SensorEvent) {
         val newRotationDeg = calculateNewRotationDegree(event)
+        println("Rotation: $newRotationDeg")
         if (newRotationDeg != rotationDeg) {
             rotationRoundedClockwise = calculateRoundedRotation(newRotationDeg)
         }
         when (event?.sensor?.type) {
-            Sensor.TYPE_ROTATION_VECTOR -> {
+            Sensor.TYPE_ACCELEROMETER -> {
                 state.upsideDown = rotationRoundedClockwise == UPSIDE_DOWN_ANGLE
             }
         }
