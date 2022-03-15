@@ -12,12 +12,16 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.getSystemService
+import android.app.Activity
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.levels.leveltwo.LevelTwo
 import com.ut3.hiddendoor.game.utils.Vector2f
 import com.ut3.hiddendoor.game.utils.Vector3f
+import com.ut3.hiddendoor.game.levels.HomeLevel
+import com.ut3.hiddendoor.game.levels.LevelFactory
+import com.ut3.hiddendoor.game.utils.Preferences
+import com.ut3.hiddendoor.game.utils.SensorsListener
 import java.util.*
-import java.util.concurrent.Semaphore
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.schedule
 import kotlin.concurrent.thread
@@ -25,7 +29,7 @@ import kotlin.math.atan2
 import kotlin.math.roundToInt
 
 
-class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener, SensorEventListener {
+class GameLogic(activity: Activity, private val gameView: GameView, levelToLoad: String? = null) : Logic, SensorEventListener {
 
     companion object {
         private const val TARGET_FPS = 30L
@@ -40,18 +44,11 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener, Se
     var sensorManager : SensorManager = gameView.context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     var rotationSensor : Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
-    init {
-        sensorManager.registerListener(this,rotationSensor, SENSOR_DELAY_FASTEST)
-        gameView.setOnTouchListener(this)
-        gameView.context.getSystemService<SensorManager>()?.run {
-            val lightSensor = getDefaultSensor(TYPE_LIGHT)
-            val listener = object : SensorEventListener {
-                override fun onAccuracyChanged(sensor: Sensor?, i: Int) = Unit
-                override fun onSensorChanged(sensorEvent: SensorEvent) {
-                    state.luminosity = sensorEvent.values[0]
-                }
-            }
+    private val preferences = Preferences(gameView.context)
+    private var state = MutableInputState()
+    private val sensorsListener = SensorsListener(gameView, state)
 
+    private var previousUpdate = 0L
             registerListener(listener, lightSensor, SENSOR_DELAY_FASTEST)
         }
     }
@@ -94,51 +91,41 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener, Se
     }
 
     private var isAlive = AtomicBoolean(false)
-    private var shouldRender = AtomicBoolean(false)
-    private val thread = thread(start = false) {
-        level.onLoad()
-        gameLoop()
-    }
+    private var gameThread = generateThread()
 
-    private val renderMutex = Semaphore(1)
     private val timer = Timer()
 
-
-    private val level = LevelTwo(gameView)
-    private var previousUpdate = 0L
-
-    private var state = MutableInputState(null, Vector2f(0f,0f), 500f, Vector2f(0f, 0f),
-        Vector3f(0f,0f,0f),false
+    private val level = LevelFactory.getLevel(
+        levelToLoad ?: preferences.currentLevel,
+        gameView,
+        activity = activity,
+        gameLogic = this
     )
+        ?: throw IllegalStateException("Unable to load level ${preferences.currentLevel}")
 
-    private fun scheduleRenderTask() {
-        if (shouldRender.get()) {
-//            println("unlocking mutex")
-            runCatching { renderMutex.release() }
-
-            timer.schedule(0) {
-                scheduleRenderTask()
-            }
-        } else {
-            println("should not render")
-        }
+    private fun generateThread() = thread(start = false) {
+        gameLoop()
     }
 
     fun start() {
         previousUpdate = System.currentTimeMillis()
-        isAlive.set(true)
-        shouldRender.set(true)
+        level.onLoad()
 
-        scheduleRenderTask()
-        thread.start()
+        sensorsListener.startListeners()
+        isAlive.set(true)
+
+        assert(!gameThread.isAlive)
+        gameThread = generateThread()
+        gameThread.start()
     }
 
     fun stop() {
+        sensorsListener.stopListeners()
         isAlive.set(false)
-        shouldRender.set(false)
 
-        thread.interrupt()
-        runCatching { renderMutex.release() }
+        gameThread.join()
+        level.clean()
+        assert(!gameThread.isAlive)
     }
 
     private fun gameLoop() {
@@ -148,26 +135,15 @@ class GameLogic(private val gameView: GameView): Logic, View.OnTouchListener, Se
             val deltaS = deltaMs / 1000f
             previousUpdate = currentTime
 
-//            println("fps: ${1f / deltaS}")
-
-
             level.handleInput(state)
             level.update(deltaS)
             level.postUpdate(deltaS)
-
-//            renderMutex.acquire()
             level.render()
 
             timer.schedule(0) {
                 gameLoop()
             }
         }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        state.touchEvent = event
-        return true
     }
 
     override fun onSensorChanged(event: SensorEvent) {

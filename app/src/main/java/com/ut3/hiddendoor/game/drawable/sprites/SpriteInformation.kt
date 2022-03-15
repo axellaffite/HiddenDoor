@@ -20,5 +20,6 @@ data class SpriteMetadata(
 data class SpriteAction(
     val index: Int,
     val count: Int,
-    val time: Float = -1f
+    val time: Float = -1f,
+    val loop: Boolean = true
 )

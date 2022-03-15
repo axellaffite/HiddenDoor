@@ -15,6 +15,7 @@ class Lever(
     private val hud: HUD,
     private val player: Player,
     private val bridge: Bridge,
+    private val alpha: () -> Int,
     conf: Lever.() -> Unit
 ) : AnimatedSprite(gameView.context, R.raw.lever, "off")
 {
@@ -22,7 +23,6 @@ class Lever(
     init { conf() }
 
     private var luminosityLevel = 0f
-    var alpha = 0f
 
     override fun handleInput(inputState: InputState) {
         luminosityLevel = inputState.luminosity
@@ -34,19 +34,15 @@ class Lever(
 
     override fun update(delta: Float) {
         super.update(delta)
-        val threshold = 80f
 
-        alpha = (threshold - luminosityLevel).coerceAtLeast(0f) * (250f / threshold)
-
-        hud.controlButtons.isBVisible = alpha > 200
+        hud.controlButtons.isBVisible = alpha() > 200
             && !bridge.isShown
             && rect.intersects(player.rect)
-
     }
 
     override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {
         val selfPaint = Paint(paint)
-        selfPaint.alpha = (alpha).toInt()
+        selfPaint.alpha = alpha()
         super.drawOnCanvas(bounds, surfaceHolder, selfPaint)
     }
 

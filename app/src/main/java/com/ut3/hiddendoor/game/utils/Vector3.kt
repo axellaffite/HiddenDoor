@@ -1,5 +1,7 @@
 package com.ut3.hiddendoor.game.utils
 
+import kotlin.math.sqrt
+
 interface Vector3<T: Number> {
     val x: T
     val y: T
@@ -23,3 +25,5 @@ operator fun Vector3f.times(amount: Float) = Vector3f(x * amount, y * amount, z 
 
 operator fun Vector3i.times(amount: Int) = Vector3i(x * amount, y * amount, z * amount)
 operator fun Vector3i.times(amount: Float) = Vector3f(x * amount, y * amount, z * amount)
+
+val Vector3f.length get() = sqrt(x*x + y*y + z*z)
