@@ -65,14 +65,6 @@ class HiddenKeyLevel(private val gameView: GameView, private val goToNextLevel: 
         if (!levelFinished && hud.controlButtons.isBPressed && door.doorOpened && player.rect.intersects(door.rect)) {
             levelFinished = true
             goToNextLevel(NAME)
-//            preferences.currentLevel = "introduction"
-//            val activity = gameView.context as Activity
-//            val intent = Intent(gameView.context, MainActivity::class.java).apply {
-//                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-//            }
-//            sound.apply { stop() }
-//            gameView.context.startActivity(intent)
-//            activity.finish()
         }
     }
 
@@ -86,14 +78,9 @@ class HiddenKeyLevel(private val gameView: GameView, private val goToNextLevel: 
 
                 withCamera(camera) { canvas, paint ->
                     canvas.draw(tilemap, paint)
-
                     canvas.draw(key,paint)
-
                     canvas.draw(door,paint)
-
-                    paint.color = Color.RED
                     canvas.draw(player, paint)
-
                 }
             }
 

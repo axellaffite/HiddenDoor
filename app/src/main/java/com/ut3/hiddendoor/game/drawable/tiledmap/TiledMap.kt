@@ -24,6 +24,16 @@ class TiledMap(
     private val context: Context
 ) : Drawable {
 
+    companion object {
+        const val DEATH_BLOCK = 0
+        const val COLLISION_BLOCK = 1
+        const val SPAWN_BLOCK = 2
+        const val LEVEL_1_BLOCK = 3
+        const val LEVEL_2_BLOCK = 4
+        const val LEVEL_3_BLOCK = 5
+        const val LEVEL_4_BLOCK = 6
+    }
+
     private data class Tile(
         val x: Int,
         val y: Int,
@@ -118,7 +128,19 @@ class TiledMap(
         }
     }.toSortedMap { o1, o2 -> data.layersOrder.indexOf(o1).compareTo(data.layersOrder.indexOf(o2)) }
 
-    private val collisions = data.collisions.chunked(data.width).toMutableList().map { it.toMutableList() }
+    private val collisions = data.collisions.chunked(data.width).map { it.toMutableList() }.toMutableList()
+
+    val initialPlayerPosition by lazy {
+        for ((y, line) in collisions.withIndex()) {
+            for ((x, block) in line.withIndex()) {
+                if (block == SPAWN_BLOCK) {
+                    return@lazy Vector2i(x, y)
+                }
+            }
+        }
+
+        Vector2i(0, 0)
+    }
 
     override val rect = ImmutableRect(
         0f,

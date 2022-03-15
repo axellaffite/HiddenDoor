@@ -29,7 +29,7 @@ class LevelTwo(private val gameView: GameView, private val goToNextLevel: (Strin
     private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
     private lateinit var sound : MediaPlayer
     private val hud : HUD = createHud(gameView)
-    private val player = createEntity { Player(gameView, tilemap, hud) {moveTo(tilemap.tileSize*3,tilemap.tileSize*3)} }
+    private val player = createEntity { Player(gameView, tilemap, hud) { setPosition(tilemap.initialPlayerPosition, tilemap.tileSize) } }
     private val camera = createTrackingCamera(
         screenPosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),
         gamePosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),

@@ -15,6 +15,7 @@ import com.ut3.hiddendoor.game.drawable.hud.Joystick
 import com.ut3.hiddendoor.game.drawable.sprites.AnimatedSprite
 import com.ut3.hiddendoor.game.drawable.tiledmap.TiledMap
 import com.ut3.hiddendoor.game.utils.Vector2f
+import com.ut3.hiddendoor.game.utils.Vector2i
 
 class Player(
     gameView: GameView,
@@ -43,7 +44,12 @@ class Player(
     private var isUpsideDown = false
     var dx = 0f
     var dy = 0f
-    var gravity = ROTATION.STRAIGHT;
+    var gravity = ROTATION.STRAIGHT
+
+    val isTouchingLevel1 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == TiledMap.LEVEL_1_BLOCK }
+    val isTouchingLevel2 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == TiledMap.LEVEL_2_BLOCK }
+    val isTouchingLevel3 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == TiledMap.LEVEL_3_BLOCK }
+    val isTouchingLevel4 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == TiledMap.LEVEL_4_BLOCK }
 
     init {
         reset()
@@ -95,6 +101,7 @@ class Player(
             moveIfRequired(isTouchingGround, delta)
             jump { hud.controlButtons.isAPressed && isTouchingGround }
 
+
             dx = dx.coerceIn(-8f, 8f)
             dy = dy.coerceIn(-16f, 16f)
 
@@ -107,25 +114,20 @@ class Player(
     }
 
     private fun isTouchingGround(): Boolean {
-        return if (isUpsideDown) {
-            tilemap.collisionTilesIntersecting(
-                RectF(rect.left, rect.top-1, rect.right, rect.top)
-            ).any { tileValue -> tileValue == 1 }
+        val intersectionRect = if (isUpsideDown) {
+            RectF(rect.left, rect.top-1, rect.right, rect.top)
         } else {
-            tilemap.collisionTilesIntersecting(
-                RectF(rect.left, rect.bottom, rect.right, rect.bottom + 1f)
-            ).any { tileValue -> tileValue == 1 }
+            RectF(rect.left, rect.bottom, rect.right, rect.bottom + 1f)
+        }
+
+        return tilemap.collisionTilesIntersecting(intersectionRect).any { tileValue ->
+            tileValue == TiledMap.COLLISION_BLOCK
         }
     }
 
-    val isTouchingLevel1 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == 3 }
-    val isTouchingLevel2 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == 4 }
-    val isTouchingLevel3 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == 5 }
-    val isTouchingLevel4 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == 6 }
-
     private fun shouldBeDead(): Boolean {
         return isDead || tilemap.collisionTilesIntersecting(rect.copyOfUnderlyingRect)
-            .any { it == 0 }
+            .any { it == TiledMap.DEATH_BLOCK }
     }
 
     fun die() {
@@ -172,20 +174,12 @@ class Player(
     }
 
     private fun jump(predicate: () -> Boolean = { true }) {
-        if (isUpsideDown) {
-            if (predicate()) {
-                dy += 6f
-            } else {
-                isJumping = false
-            }
+        val operand = if (isUpsideDown) 1 else -1
+        if (predicate()) {
+            dy += 6f * operand
         } else {
-            if (predicate()) {
-                dy -= 6f
-            } else {
-                isJumping = false
-            }
+            isJumping = false
         }
-
     }
 
     private fun applyGravity(isTouchingGround: Boolean, delta: Float) {
@@ -216,6 +210,16 @@ class Player(
         if (!tilemap.collisionTilesIntersecting(tmp).any { it == 1 }) {
             rect = ImmutableRect(tmp)
         }
+    }
+
+    fun setPosition(position: Vector2i, tileSize: Float) {
+        val bottom = (position.y + 1) * tileSize
+        val top = bottom - rect.height
+        val center = position.x * tileSize + tileSize / 2f
+        val left = center - tileSize / 2f
+        val right = left + rect.width
+
+        rect = ImmutableRect(left, top, right, bottom)
     }
 
     fun center() = Vector2f(rect.centerX, rect.centerY)
