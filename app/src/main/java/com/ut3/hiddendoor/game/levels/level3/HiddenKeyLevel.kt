@@ -24,10 +24,12 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
         const val TILE_MAP_RESOURCE = R.raw.hiddenkeymap
         const val NAME = "hiddenKeyLevel"
     }
-    private val tilemap = gameView.context.loadTiledMap(HiddenKeyLevel.TILE_MAP_RESOURCE)
+
+    private var levelFinished = false
+    private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
     private val preferences = Preferences(gameView.context)
     private val hud = createHud(gameView) { controlButtons.isBVisible = false }
-    private val player = createEntity { Player(gameView, tilemap, hud) }
+    private val player = createEntity { Player(gameView, tilemap, hud) { moveTo(200f, 200f) } }
     private val key = createEntity {
         Key(gameView,hud,tilemap ,player,preferences) { move(300f, 350f ) }
     }
@@ -60,7 +62,8 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
 
     override fun handleInput(inputState: InputState) {
         super.handleInput(inputState)
-        if (hud.controlButtons.isBPressed && door.doorOpened && player.rect.intersects(door.rect)) {
+        if (!levelFinished && hud.controlButtons.isBPressed && door.doorOpened && player.rect.intersects(door.rect)) {
+            levelFinished = true
             preferences.currentLevel = "introduction"
             val activity = gameView.context as Activity
             val intent = Intent(gameView.context, MainActivity::class.java).apply {
