@@ -14,15 +14,19 @@ import com.ut3.hiddendoor.game.drawable.tiledmap.loadTiledMap
 import com.ut3.hiddendoor.game.logic.EntityManager
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Player
-import com.ut3.hiddendoor.game.utils.Vector3f
+import com.ut3.hiddendoor.game.logic.isUpsideDown
+import com.ut3.hiddendoor.game.utils.Preferences
+import com.ut3.hiddendoor.game.utils.preferences
 
 class LevelTwo(private val gameView: GameView) : EntityManager() {
 
     companion object {
         const val NAME = "level2"
         const val TILE_MAP_RESOURCE = R.raw.level2
-        private const val REVERSED_THRESHOLD  = 0.1
     }
+
+    private val angleReference = preferences(gameView.context) { angleReference }
+
     private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
     private lateinit var sound : MediaPlayer
     private val hud : HUD = createHud(gameView)
@@ -33,7 +37,7 @@ class LevelTwo(private val gameView: GameView) : EntityManager() {
         track = player::center
     )
 
-    private var gyroscope : Vector3f = Vector3f(0f,0f,0f)
+    private var isUpsideDown = false
 
     override fun onLoad() {
         sound = MediaPlayer.create(gameView.context, R.raw.ambiance_sound).apply {
@@ -49,20 +53,21 @@ class LevelTwo(private val gameView: GameView) : EntityManager() {
 
     override fun handleInput(inputState: InputState) {
         super.handleInput(inputState)
-        val isUpsideDown = inputState.upsideDown
-        player.flipUpsideDown(inputState.upsideDown)
+        isUpsideDown = inputState.isUpsideDown(angleReference)
+    }
+
+    override fun update(delta: Float) {
+        super.update(delta)
+
+        player.flipUpsideDown(isUpsideDown)
         if (isUpsideDown) {
             player.changeRotation(Player.ROTATION.REVERSED)
-        }else {
+        } else {
             player.changeRotation(Player.ROTATION.STRAIGHT)
         }
     }
 
     override fun onSaveState() {
-    }
-
-    override fun update(delta: Float) {
-        super.update(delta)
     }
 
     override fun render() {
@@ -89,6 +94,7 @@ class LevelTwo(private val gameView: GameView) : EntityManager() {
                     )
                 }
             }
+
             hud.draw(gameView.rect, canvas, paint)
         }
     }

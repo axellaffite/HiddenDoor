@@ -10,7 +10,7 @@ interface InputState {
     val acceleration: Vector3f
     val orientation: Vector3f
     val rotation: Vector3f
-    val upsideDown: Boolean
+    val angle: Int
 }
 
 data class MutableInputState(
@@ -19,8 +19,16 @@ data class MutableInputState(
     override var luminosity: Float = 0f,
     override var orientation: Vector3f = Vector3f(0f, 0f, 0f),
     override var rotation: Vector3f = Vector3f(0f, 0f, 0f),
-    override var upsideDown : Boolean = false
+    override var angle: Int = 0,
 ): InputState
 
 fun InputState.isShaking(accelerationReference: Vector3f) =
     acceleration.length >= (accelerationReference.length * 3f / 4f)
+
+fun InputState.isUpsideDown(angleReference: Int) = when (angleReference) {
+    0 -> angle == 180
+    90 -> angle == 270
+    180 -> angle == 0
+    270 -> angle == 90
+    else -> false
+}.also { println("angle: $angle | ref: $angleReference") }

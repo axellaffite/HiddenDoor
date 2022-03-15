@@ -14,7 +14,7 @@ import kotlin.concurrent.schedule
 import kotlin.concurrent.thread
 
 
-class GameLogic(activity: Activity, private val gameView: GameView, levelToLoad: String? = null) : Logic {
+class GameLogic(activity: Activity, gameView: GameView, levelToLoad: String? = null) : Logic {
 
     companion object {
         private const val TARGET_FPS = 30L

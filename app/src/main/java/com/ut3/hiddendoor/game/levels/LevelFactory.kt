@@ -13,7 +13,6 @@ import com.ut3.hiddendoor.game.utils.Preferences
 
 object LevelFactory {
     fun getLevel(levelName: String, gameView: GameView, gameLogic: GameLogic, activity: Activity) = when(levelName) {
-        IntroductionLevel.NAME -> IntroductionLevel(gameView, activity)
         HomeLevel.NAME -> HomeLevel(gameView) { levelToLoad ->
             Handler(Looper.getMainLooper()).post {
                 gameLogic.stop()
@@ -27,6 +26,10 @@ object LevelFactory {
                 activity.finish()
             }
         }
+
+        IntroductionLevel.NAME -> IntroductionLevel(gameView, activity)
+
+        LevelTwo.NAME -> LevelTwo(gameView)
         else -> null
     }
 

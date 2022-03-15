@@ -10,7 +10,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import androidx.core.content.getSystemService
-import com.ut3.hiddendoor.game.logic.GameLogic
 import com.ut3.hiddendoor.game.logic.MutableInputState
 import kotlin.math.atan2
 import kotlin.math.roundToInt
@@ -26,7 +25,6 @@ class SensorsListener(
         private const val Z_AXIS_AXIS = 2
         private const val ORIENTATION_UNKNOWN = -1
         private const val ONE_EIGHTY_OVER_PI = 57.29577957855f
-        private const val UPSIDE_DOWN_ANGLE = 270
     }
 
     private val sensorManager = view.context.getSystemService<SensorManager>()
@@ -99,7 +97,7 @@ class SensorsListener(
 
                 val newRotationDeg = calculateNewRotationDegree(event)
                 val rotationRoundedClockwise = calculateRoundedRotation(newRotationDeg)
-                state.upsideDown = rotationRoundedClockwise == UPSIDE_DOWN_ANGLE
+                state.angle = rotationRoundedClockwise
 
                 onAccelerometerValueChanged(state.acceleration)
             }

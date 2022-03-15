@@ -37,7 +37,7 @@ class HomeLevel(private val gameView: GameView, private val launchNewActivity: (
     private var levelTouched = -1
     private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
     private val hud = createHud(gameView) { controlButtons.isBVisible = false }
-    private val player = createEntity { Player(gameView, tilemap, hud) }
+    private val player = createEntity { Player(gameView, tilemap, hud) { moveTo(200f, 200f) } }
     private var levelLaunched = false
 
     private val camera = createTrackingCamera(
