@@ -38,7 +38,7 @@ class IntroductionLevel(private val gameView: GameView, private val goToNextLeve
 
     private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
     private val hud = createHud(gameView) { controlButtons.isBVisible = false }
-    private val player = createEntity { Player(gameView, tilemap, hud) { moveTo(200f, 200f) } }
+    private val player = createEntity { Player(gameView, tilemap, hud) { setPosition(tilemap.initialPlayerPosition, tilemap.tileSize) } }
 
     private val bridge = createEntity {
         Bridge(x = 18, y = 29, blockCount = 8, tilemap = tilemap, player = player)
