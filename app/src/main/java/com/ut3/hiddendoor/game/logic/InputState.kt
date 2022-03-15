@@ -18,8 +18,8 @@ data class MutableInputState(
     override var acceleration: Vector3f = Vector3f(0f, 0f, 0f),
     override var luminosity: Float = 0f,
     override var orientation: Vector3f = Vector3f(0f, 0f, 0f),
-    override var rotation: Vector3f,
-    override var upsideDown : Boolean
+    override var rotation: Vector3f = Vector3f(0f, 0f, 0f),
+    override var upsideDown : Boolean = false
 ): InputState
 
 fun InputState.isShaking(accelerationReference: Vector3f) =

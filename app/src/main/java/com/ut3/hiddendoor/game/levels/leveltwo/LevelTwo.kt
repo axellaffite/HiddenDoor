@@ -19,6 +19,7 @@ import com.ut3.hiddendoor.game.utils.Vector3f
 class LevelTwo(private val gameView: GameView) : EntityManager() {
 
     companion object {
+        const val NAME = "level2"
         const val TILE_MAP_RESOURCE = R.raw.level2
         private const val REVERSED_THRESHOLD  = 0.1
     }
