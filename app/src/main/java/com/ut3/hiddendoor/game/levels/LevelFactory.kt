@@ -7,6 +7,7 @@ import android.os.Looper
 import com.ut3.hiddendoor.MainActivity
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.levels.introduction.IntroductionLevel
+import com.ut3.hiddendoor.game.levels.level3.HiddenKeyLevel
 import com.ut3.hiddendoor.game.levels.leveltwo.LevelTwo
 import com.ut3.hiddendoor.game.logic.GameLogic
 import com.ut3.hiddendoor.game.utils.Preferences
@@ -26,6 +27,7 @@ object LevelFactory {
                 activity.finish()
             }
         }
+        HiddenKeyLevel.NAME -> HiddenKeyLevel(gameView)
 
         IntroductionLevel.NAME -> IntroductionLevel(gameView, activity)
 
@@ -37,6 +39,7 @@ object LevelFactory {
         return when (levelToLoad) {
             1 -> IntroductionLevel.NAME
             2 -> LevelTwo.NAME
+            3 -> HiddenKeyLevel.NAME
             else -> IntroductionLevel.NAME
         }
     }

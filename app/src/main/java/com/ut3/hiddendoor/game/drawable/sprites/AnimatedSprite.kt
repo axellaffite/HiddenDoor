@@ -18,7 +18,7 @@ abstract class AnimatedSprite(
     private val defaultAction: String
 ) : Drawable, Entity {
 
-    private val information: SpriteInformation = Yaml.default.decodeFromStream(
+    protected val information: SpriteInformation = Yaml.default.decodeFromStream(
         context.resources.openRawResource(resource)
     )
 
