@@ -21,7 +21,7 @@ import kotlin.concurrent.timerTask
 import kotlin.system.measureTimeMillis
 
 
-class IntroductionLevel(private val gameView: GameView, activity: Activity) : EntityManager() {
+class IntroductionLevel(private val gameView: GameView, private val goToNextLevel: (String) -> Unit) : EntityManager() {
 
     companion object {
         const val TILE_MAP_RESOURCE = R.raw.testmap

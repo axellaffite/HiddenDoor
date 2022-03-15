@@ -19,7 +19,7 @@ import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Player
 import com.ut3.hiddendoor.game.utils.Preferences
 
-class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
+class HiddenKeyLevel(private val gameView: GameView, private val goToNextLevel: (String) -> Unit) : EntityManager(){
     companion object {
         const val TILE_MAP_RESOURCE = R.raw.hiddenkeymap
         const val NAME = "hiddenKeyLevel"
@@ -64,14 +64,15 @@ class HiddenKeyLevel(private val gameView: GameView) : EntityManager(){
         super.handleInput(inputState)
         if (!levelFinished && hud.controlButtons.isBPressed && door.doorOpened && player.rect.intersects(door.rect)) {
             levelFinished = true
-            preferences.currentLevel = "introduction"
-            val activity = gameView.context as Activity
-            val intent = Intent(gameView.context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-            }
-            sound.apply { stop() }
-            gameView.context.startActivity(intent)
-            activity.finish()
+            goToNextLevel(NAME)
+//            preferences.currentLevel = "introduction"
+//            val activity = gameView.context as Activity
+//            val intent = Intent(gameView.context, MainActivity::class.java).apply {
+//                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+//            }
+//            sound.apply { stop() }
+//            gameView.context.startActivity(intent)
+//            activity.finish()
         }
     }
 

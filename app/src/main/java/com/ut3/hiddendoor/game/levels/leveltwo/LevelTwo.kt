@@ -15,10 +15,9 @@ import com.ut3.hiddendoor.game.logic.EntityManager
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Player
 import com.ut3.hiddendoor.game.logic.isUpsideDown
-import com.ut3.hiddendoor.game.utils.Preferences
 import com.ut3.hiddendoor.game.utils.preferences
 
-class LevelTwo(private val gameView: GameView) : EntityManager() {
+class LevelTwo(private val gameView: GameView, private val goToNextLevel: (String) -> Unit) : EntityManager() {
 
     companion object {
         const val NAME = "level2"
@@ -65,6 +64,10 @@ class LevelTwo(private val gameView: GameView) : EntityManager() {
         } else {
             player.changeRotation(Player.ROTATION.STRAIGHT)
         }
+
+        if (player.isTouchingLevel3) {
+            goToNextLevel(NAME)
+        }
     }
 
     override fun onSaveState() {
@@ -75,7 +78,7 @@ class LevelTwo(private val gameView: GameView) : EntityManager() {
             canvas.withSave {
                 val scaleFactor = ((gameView.width / tilemap.tileSize) / 18f)
                 canvas.scale(scaleFactor, scaleFactor, gameView.width / 2f, gameView.height / 2f)
-                canvas.drawColor(Color.BLUE)
+                canvas.drawColor(Color.parseColor("#34202b"))
 
                 withCamera(camera) { canvas, paint ->
                     canvas.draw(tilemap, paint)
