@@ -25,7 +25,7 @@ import com.ut3.hiddendoor.game.logic.Player
 import com.ut3.hiddendoor.game.utils.Vector2f
 import org.w3c.dom.Text
 
-class HomeLevel(private val gameView: GameView, private val launchNewActivity: () -> Unit) : EntityManager() {
+class HomeLevel(private val gameView: GameView, private val launchNewActivity: (Int) -> Unit) : EntityManager() {
 
     companion object {
         const val TILE_MAP_RESOURCE = R.raw.home
@@ -37,7 +37,7 @@ class HomeLevel(private val gameView: GameView, private val launchNewActivity: (
     private var levelTouched = -1
     private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
     private val hud = createHud(gameView) { controlButtons.isBVisible = false }
-    private val player = createEntity { Player(gameView, tilemap, hud) }
+    private val player = createEntity { Player(gameView, tilemap, hud) { moveTo(200f, 200f) } }
     private var levelLaunched = false
 
     private val camera = createTrackingCamera(
@@ -68,7 +68,7 @@ class HomeLevel(private val gameView: GameView, private val launchNewActivity: (
 
         if (!levelLaunched && levelTouched != -1 && hud.controlButtons.isBPressed) {
             levelLaunched = true
-            launchNewActivity()
+            launchNewActivity(levelTouched)
         }
     }
 

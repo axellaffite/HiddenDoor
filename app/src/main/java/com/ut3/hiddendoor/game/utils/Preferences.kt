@@ -2,10 +2,14 @@ package com.ut3.hiddendoor.game.utils
 
 import android.content.Context
 import androidx.core.content.edit
+import androidx.core.graphics.component1
+import androidx.core.graphics.component2
+import androidx.core.graphics.component3
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.MutableInputState
 
 class Preferences(val context: Context) {
+
     private val sharedPreferences =
         context.getSharedPreferences("preferences", Context.MODE_PRIVATE)
 
@@ -31,10 +35,18 @@ class Preferences(val context: Context) {
         }
         set(value) = sharedPreferences.edit { putString("ref_orientation", "${value.x};${value.y};${value.z}") }
 
+    var angleReference: Int
+        get() = sharedPreferences.getInt("ref_angle", 0)
+        set(value) = sharedPreferences.edit { putInt("ref_angle", value) }
+
     val referenceState: InputState get() = MutableInputState(
         touchEvent = null,
         acceleration = accelerationReference,
         luminosity = luminosityReference,
-        orientation = orientationReference
+        orientation = orientationReference,
+        angle = angleReference
     )
+
 }
+
+fun <T> preferences(context: Context, block: Preferences.() -> T) = Preferences(context).run(block)

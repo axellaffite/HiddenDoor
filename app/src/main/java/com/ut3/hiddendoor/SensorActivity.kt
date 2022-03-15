@@ -81,6 +81,7 @@ class SensorActivity: AppCompatActivity() {
                     text = "✔"
                     isEnabled = false
                     referenceState.orientation = mutableState.orientation
+                    referenceState.angle = mutableState.angle
                     count ++
                     enablePlayButtonIfNeeded()
 
@@ -98,6 +99,7 @@ class SensorActivity: AppCompatActivity() {
                 preferences.luminosityReference = referenceState.luminosity
                 preferences.accelerationReference = referenceState.acceleration
                 preferences.orientationReference = referenceState.orientation
+                preferences.angleReference = referenceState.angle
 
                 val intent = Intent(this@SensorActivity, HomeActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
