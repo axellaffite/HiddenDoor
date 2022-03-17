@@ -39,10 +39,7 @@ abstract class AnimatedSprite(
 
     fun setAction(action: String, reverse: Boolean = false): Boolean {
         val newAction = actions[action]
-            ?: return false.also {
-                println("Cannot set action to $action, available ones are ${actions.keys}")
-            }
-
+            ?: return false
         if (newAction == currentAction) {
             return false
         }

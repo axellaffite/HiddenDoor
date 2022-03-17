@@ -40,7 +40,6 @@ class HiddenKeyLevel(
 
     override fun clean() {
         super.clean()
-        sound.stop()
     }
 
     override fun onSaveState() {

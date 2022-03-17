@@ -3,6 +3,7 @@ package com.ut3.hiddendoor.game.levels.introduction
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import androidx.core.graphics.withClip
 import androidx.core.graphics.withScale
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView
@@ -31,14 +32,15 @@ class IntroductionLevel(
 
     private var luminosityLevel = 0f
     private var nightAlpha = 0
+    private var nextLevelLoaded = false
 
     private val bridge = createEntity {
-        Bridge(x = 18, y = 29, blockCount = 8, tilemap = tilemap, player = player)
+        Bridge(x = 27, y = 25, blockCount = 10, tilemap = tilemap, player = player)
     }
 
     private val lever = createEntity {
         Lever(gameView, hud, player, bridge, ::nightAlpha) {
-            moveTo(200f, 448f)
+            moveTo(352f, 384f)
         }
     }
 
@@ -62,6 +64,11 @@ class IntroductionLevel(
 
         val rawAlpha = (threshold - (luminosityLevel * 4f / 3f)).coerceAtLeast(0f)
         nightAlpha = (rawAlpha * (255f / threshold)).toInt()
+
+        if (player.isTouchingLevel2) {
+            nextLevelLoaded = true
+            goToNextLevel(NAME)
+        }
     }
 
     override fun render() {
@@ -69,10 +76,16 @@ class IntroductionLevel(
             val scaleFactor = ((gameView.width / tilemap.tileSize) / 18f)
             val (pivotX, pivotY) = gameView.width / 2f to gameView.height / 2f
 
+
+            canvas.drawColor(Color.parseColor("#34202b"))
+
             canvas.withScale(x = scaleFactor, y = scaleFactor, pivotX = pivotX, pivotY = pivotY) {
-                canvas.drawColor(Color.BLUE)
 
                 withCamera(camera) { canvas, paint ->
+                    canvas.withClip(tilemap.rect.copyOfUnderlyingRect) {
+                        canvas.drawColor(Color.BLUE)
+                    }
+
                     canvas.draw(tilemap, paint)
                     canvas.draw(player, paint)
                     canvas.draw(bridge, paint)

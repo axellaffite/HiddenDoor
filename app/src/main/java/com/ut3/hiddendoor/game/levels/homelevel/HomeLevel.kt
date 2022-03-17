@@ -61,8 +61,11 @@ class HomeLevel(
 
     override fun clean() {
         super.clean()
-        sound.stop()
-        sound.release()
+        runCatching{
+            sound.stop()
+            sound.release()
+        }
+
     }
 
     override fun onSaveState() {

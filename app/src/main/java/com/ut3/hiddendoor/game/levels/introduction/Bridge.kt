@@ -69,11 +69,11 @@ class Bridge(
         tilemap.setCollision(currentX, y, 1)
 
         if (blocks.size == 1) {
-            sideBlocks.add(BridgeBlock(currentX - 1, y, tilemap, 3))
+            sideBlocks.add(BridgeBlock(currentX - 1, y, tilemap, Vector2i(3, 10)))
         }
 
         if (blocks.size == blockCount) {
-            sideBlocks.add(BridgeBlock(currentX + 1, y, tilemap, 3))
+            sideBlocks.add(BridgeBlock(currentX + 1, y, tilemap, Vector2i(3, 10)))
         }
     }
 
