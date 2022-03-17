@@ -3,6 +3,7 @@ package com.ut3.hiddendoor.game.levels.introduction
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import androidx.core.graphics.withClip
 import androidx.core.graphics.withScale
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView
@@ -68,8 +69,6 @@ class IntroductionLevel(
             nextLevelLoaded = true
             goToNextLevel(NAME)
         }
-
-        println(player.rect)
     }
 
     override fun render() {
@@ -77,13 +76,16 @@ class IntroductionLevel(
             val scaleFactor = ((gameView.width / tilemap.tileSize) / 18f)
             val (pivotX, pivotY) = gameView.width / 2f to gameView.height / 2f
 
+
             canvas.drawColor(Color.parseColor("#34202b"))
 
-
             canvas.withScale(x = scaleFactor, y = scaleFactor, pivotX = pivotX, pivotY = pivotY) {
-                canvas.drawColor(Color.BLUE)
 
                 withCamera(camera) { canvas, paint ->
+                    canvas.withClip(tilemap.rect.copyOfUnderlyingRect) {
+                        canvas.drawColor(Color.BLUE)
+                    }
+
                     canvas.draw(tilemap, paint)
                     canvas.draw(player, paint)
                     canvas.draw(bridge, paint)
