@@ -15,6 +15,7 @@ import com.ut3.hiddendoor.game.drawable.sprites.AnimatedSprite
 import com.ut3.hiddendoor.game.drawable.tiledmap.TiledMap
 import com.ut3.hiddendoor.game.utils.Vector2f
 import com.ut3.hiddendoor.game.utils.Vector2i
+import kotlin.math.abs
 
 class Player(
     gameView: GameView,
@@ -102,7 +103,7 @@ class Player(
             val isTouchingGround = isTouchingGround()
             applyGravity(isTouchingGround, delta)
             moveIfRequired(isTouchingGround, delta)
-            jump { hud.controlButtons.isAPressed && isTouchingGround }
+            jump { hud.controlButtons.isAPressed && isTouchingGround && abs(dy) < 1f }
 
 
             dx = dx.coerceIn(-8f, 8f)
