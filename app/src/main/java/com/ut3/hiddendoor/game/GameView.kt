@@ -25,13 +25,16 @@ class GameView(context: Context, private val levelToLoad: String? = null): Surfa
     }
 
     fun draw(paint: Paint = Paint(), block: DrawingContext.(Canvas, Paint) -> Unit) {
-        holder?.withLock { canvas ->
-            drawingContext.use(paint, canvas, block)
+        holder?.withLock { canvas: Canvas? ->
+            canvas?.let {
+                drawingContext.use(paint, canvas, block)
+            }
         }
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         post {
+            invalidate()
             logic = GameLogic(context as Activity, this, levelToLoad = levelToLoad)
             logic.start()
         }
