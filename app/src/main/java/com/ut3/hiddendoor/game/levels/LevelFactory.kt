@@ -7,7 +7,6 @@ import android.os.Looper
 import com.ut3.hiddendoor.MainActivity
 import com.ut3.hiddendoor.ScoreActivity
 import com.ut3.hiddendoor.game.GameView
-import com.ut3.hiddendoor.game.levels.homelevel.HomeLevel
 import com.ut3.hiddendoor.game.levels.introduction.IntroductionLevel
 import com.ut3.hiddendoor.game.levels.level3.HiddenKeyLevel
 import com.ut3.hiddendoor.game.levels.leveltwo.LevelTwo
