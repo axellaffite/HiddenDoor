@@ -31,4 +31,4 @@ fun InputState.isUpsideDown(angleReference: Int) = when (angleReference) {
     180 -> angle == 0
     270 -> angle == 90
     else -> false
-}.also { println("angle: $angle | ref: $angleReference") }
+}
