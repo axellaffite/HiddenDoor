@@ -40,7 +40,6 @@ class LevelTwo(
 
     override fun clean() {
         super.clean()
-        sound.stop()
     }
 
     override fun handleInput(inputState: InputState) {

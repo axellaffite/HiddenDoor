@@ -1,14 +1,12 @@
 package com.ut3.hiddendoor.game.drawable.hud
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.view.MotionEvent
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.drawable.Circle
 import com.ut3.hiddendoor.game.drawable.Drawable
 import com.ut3.hiddendoor.game.drawable.ImmutableRect
+import com.ut3.hiddendoor.game.drawable.loadBitmapKeepSize
 import com.ut3.hiddendoor.game.logic.Entity
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.utils.Vector2f
@@ -20,6 +18,9 @@ import com.ut3.hiddendoor.game.utils.Vector2f
  * @param gameView target on which those buttons should be drawn
  */
 class ControlButtons(gameView: GameView) : Drawable, Entity {
+
+    private val circleBitmap: Bitmap = gameView.context.loadBitmapKeepSize("circle_red")
+    private val crossBitmap: Bitmap = gameView.context.loadBitmapKeepSize("cross_blue")
 
     /** Is A button visible */
     var isAVisible = true
@@ -63,11 +64,11 @@ class ControlButtons(gameView: GameView) : Drawable, Entity {
 
     override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {
         if (isAVisible) {
-            aButton.drawOnCanvas(bounds, surfaceHolder, paint)
+            surfaceHolder.drawBitmap(circleBitmap, null,aButton.rect.copyOfUnderlyingRect, null)
         }
 
         if (isBVisible) {
-            bButton.drawOnCanvas(bounds, surfaceHolder, paint)
+            surfaceHolder.drawBitmap(crossBitmap, null,bButton.rect.copyOfUnderlyingRect, null)
         }
     }
 

@@ -171,7 +171,11 @@ class Player(
 
     private fun run(reverse: Boolean = false) {
         isRunning = true
-        setAction("run", reverse)
+        if (isTouchingGround()) {
+            setAction("run", reverse)
+        }else {
+            setAction("jump",reverse)
+        }
     }
 
     private fun jump(predicate: () -> Boolean = { true }) {
