@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import com.ut3.hiddendoor.game.GameView
-import com.ut3.hiddendoor.game.levels.HomeLevel
-import com.ut3.hiddendoor.game.logic.GameLogic
 
 class MainActivity : BaseActivity() {
 
