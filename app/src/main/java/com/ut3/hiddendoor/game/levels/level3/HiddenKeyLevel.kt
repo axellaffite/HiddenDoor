@@ -29,7 +29,7 @@ class HiddenKeyLevel(
         Key(gameView,hud,tilemap ,player,preferences) { move(300f, 350f ) }
     }
     private val door = createEntity {
-        Door(gameView,hud,player,key) { move( 544f, 392f)}
+        Door(gameView) { move( 544f, 392f)}
     }
 
     private val camera = createTrackingCamera(
@@ -72,6 +72,17 @@ class HiddenKeyLevel(
 
 
             hud.draw(gameView.rect, canvas, paint)
+        }
+    }
+
+    override fun update(delta: Float) {
+        super.update(delta)
+        hud.controlButtons.isBVisible =
+            (door.rect.intersects(player.rect) && key.playerHasKey)
+                    || (key.rect.intersects(player.rect) && !key.playerHasKey)
+        if (door.rect.intersects(player.rect) && key.playerHasKey) {
+            door.setAction("open")
+            door.doorOpened = true
         }
     }
 }

@@ -5,7 +5,9 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import com.ut3.hiddendoor.MainActivity
+import com.ut3.hiddendoor.ScoreActivity
 import com.ut3.hiddendoor.game.GameView
+import com.ut3.hiddendoor.game.levels.homelevel.HomeLevel
 import com.ut3.hiddendoor.game.levels.introduction.IntroductionLevel
 import com.ut3.hiddendoor.game.levels.level3.HiddenKeyLevel
 import com.ut3.hiddendoor.game.levels.leveltwo.LevelTwo
@@ -17,7 +19,7 @@ object LevelFactory {
     fun getLevel(levelName: String, gameView: GameView, gameLogic: GameLogic, activity: Activity): EntityManager? {
         val nextLevel = goToNextLevel(activity, gameLogic)
         return when(levelName) {
-            HomeLevel.NAME -> HomeLevel(gameView) { levelToLoad ->
+            HomeLevel.NAME -> HomeLevel(gameView, goToScore(activity) ) { levelToLoad ->
                 Handler(Looper.getMainLooper()).post {
                     gameLogic.stop()
 
@@ -65,6 +67,19 @@ object LevelFactory {
                 Preferences(activity).currentLevel = nextLevel
 
                 val intent = Intent(activity, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+                }
+                activity.startActivity(intent)
+                activity.finish()
+            }
+        }
+    }
+
+    fun goToScore(activity: Activity): () -> Unit {
+        return {
+            Handler(Looper.getMainLooper()).post {
+
+                val intent = Intent(activity, ScoreActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
                 }
                 activity.startActivity(intent)

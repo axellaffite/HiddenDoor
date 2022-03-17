@@ -42,6 +42,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ScoreActivity"
+            android:exported="true"
+            android:theme="@style/Theme.HiddenDoor.NoActionBar"
+            android:screenOrientation="landscape">
+            <intent-filter>
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

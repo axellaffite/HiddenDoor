@@ -11,9 +11,7 @@ import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Player
 
 class Door(
-    val gameView: GameView, private val hud: HUD,
-    private val player: Player,
-    private val key: Key,
+    val gameView: GameView,
     conf: Door.() -> Unit
 ) : AnimatedSprite(gameView.context, R.raw.door, "close") {
 
@@ -21,25 +19,6 @@ class Door(
 
     init {
         conf()
-    }
-
-    override fun handleInput(inputState: InputState) {
-        super.handleInput(inputState)
-    }
-
-    override fun update(delta: Float) {
-        super.update(delta)
-        hud.controlButtons.isBVisible =
-            (rect.intersects(player.rect) && key.playerHasKey)
-                    || (key.rect.intersects(player.rect) && !key.playerHasKey)
-        if (rect.intersects(player.rect) && key.playerHasKey) {
-            setAction("open")
-            doorOpened = true
-        }
-    }
-
-    override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {
-        super.drawOnCanvas(bounds, surfaceHolder, paint)
     }
 
 }

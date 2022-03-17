@@ -18,6 +18,19 @@ class Preferences(val context: Context) {
         get() = sharedPreferences.getString("current_level", "introduction")!!
         set(value) = sharedPreferences.edit { putString("current_level", value) }
 
+    var scoreLevelOne: Float
+        get() = sharedPreferences.getFloat("score_level_1", 0f)
+        set(value) = sharedPreferences.edit { putFloat("score_level_1", value) }
+
+    var scoreLevelTwo: Float
+        get() = sharedPreferences.getFloat("score_level_2", 0f)
+        set(value) = sharedPreferences.edit { putFloat("score_level_2", value) }
+
+    var scoreLevelThree: Float
+        get() = sharedPreferences.getFloat("score_level_3", 0f)
+        set(value) = sharedPreferences.edit { putFloat("score_level_3", value) }
+
+
     var luminosityReference: Float
         get() = sharedPreferences.getFloat("ref_luminosity", 0f)
         set(value) = sharedPreferences.edit { putFloat("ref_luminosity", value) }
