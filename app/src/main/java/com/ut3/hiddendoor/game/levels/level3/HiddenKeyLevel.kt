@@ -24,6 +24,10 @@ class HiddenKeyLevel(
         const val NAME = "hiddenKeyLevel"
     }
 
+    var startTime = System.currentTimeMillis()
+
+    private val score = 25f
+
     private var levelFinished = false
     private val key = createEntity {
         Key(gameView,hud,tilemap ,player,preferences) { move(300f, 350f ) }
@@ -48,6 +52,7 @@ class HiddenKeyLevel(
     override fun handleInput(inputState: InputState) {
         super.handleInput(inputState)
         if (!levelFinished && hud.controlButtons.isBPressed && door.doorOpened && player.rect.intersects(door.rect)) {
+            updateScore()
             levelFinished = true
             goToNextLevel(NAME)
         }
@@ -83,5 +88,11 @@ class HiddenKeyLevel(
             door.setAction("open")
             door.doorOpened = true
         }
+    }
+
+    private fun updateScore() {
+        var penalty =  (System.currentTimeMillis() - startTime) / 1000 / 10
+        var s = score - 2 * penalty
+        preferences.scoreLevelThree = if (s >= 0f) s else 0f
     }
 }

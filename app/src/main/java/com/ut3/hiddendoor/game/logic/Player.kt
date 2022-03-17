@@ -26,6 +26,8 @@ class Player(
     AnimatedSprite(gameView.context, R.raw.character, "idle")
 {
 
+    var deathNumber = 0
+
     companion object {
         const val SPEED = 12f
     }
@@ -133,6 +135,7 @@ class Player(
 
     fun die() {
         if (!isDead) {
+            deathNumber++
             reactToEnvironment = false
             isDead = true
             setAction("hit", isBitmapReversed)
