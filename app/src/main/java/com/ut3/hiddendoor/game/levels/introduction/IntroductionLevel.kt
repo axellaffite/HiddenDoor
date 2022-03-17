@@ -68,8 +68,6 @@ class IntroductionLevel(
             nextLevelLoaded = true
             goToNextLevel(NAME)
         }
-
-        println(player.rect)
     }
 
     override fun render() {

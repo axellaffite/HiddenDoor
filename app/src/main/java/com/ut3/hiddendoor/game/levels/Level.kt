@@ -37,8 +37,10 @@ abstract class Level(
     }
     override fun clean() {
         super.clean()
-        sound.stop()
-        sound.release()
+        runCatching {
+            sound.stop()
+            sound.release()
+        }
     }
 
 }

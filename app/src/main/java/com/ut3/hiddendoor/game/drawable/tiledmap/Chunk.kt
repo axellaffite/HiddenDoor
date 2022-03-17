@@ -13,10 +13,6 @@ class Chunk(
     override val rect: ImmutableRect
 ) : Drawable {
 
-    init {
-        println("init chunk: $rect")
-    }
-
     override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {
         val texture = Paint(paint).apply {
             shader = BitmapShader(tileset.bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
