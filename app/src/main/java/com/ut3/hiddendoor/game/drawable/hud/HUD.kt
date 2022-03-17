@@ -27,7 +27,7 @@ class HUD(gameView: GameView,
     private var fps = 0f
     val joystick = createEntity { Joystick(gameView.rect,gameView.context ) }
     val controlButtons = createEntity { ControlButtons(gameView) }
-    private val homeButton = createEntity { HomeButton(RectF(0f,0f,gameView.width.toFloat(),gameView.height.toFloat()),
+    private val homeButton = createEntity { HomeButton(RectF(0f,20f,gameView.width.toFloat()-40f,gameView.height.toFloat()),
     BitmapFactory.decodeResource(gameView.resources, R.drawable.home)) }
 
     var homeVisible = false

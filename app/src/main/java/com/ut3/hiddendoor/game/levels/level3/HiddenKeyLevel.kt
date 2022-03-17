@@ -26,7 +26,7 @@ class HiddenKeyLevel(
 
     var startTime = System.currentTimeMillis()
 
-    private val score = 25f
+    private val score = 25
 
     private var levelFinished = false
     private val key = createEntity {
@@ -91,8 +91,9 @@ class HiddenKeyLevel(
     }
 
     private fun updateScore() {
-        var penalty =  (System.currentTimeMillis() - startTime) / 1000 / 10
-        var s = score - 2 * penalty
-        preferences.scoreLevelThree = if (s >= 0f) s else 0f
+        val penalty =  (System.currentTimeMillis() - startTime) / 1000 / 10
+        val s = score - 2 * penalty.toInt()
+        println("ici $s")
+        preferences.scoreLevelThree = if (s >= 0) s else 0
     }
 }
