@@ -3,6 +3,8 @@ package com.ut3.hiddendoor
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.ut3.hiddendoor.databinding.ScoreActivityBinding
 import com.ut3.hiddendoor.game.utils.Preferences
@@ -14,6 +16,12 @@ class ScoreActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        supportActionBar?.hide()
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
         preferences = Preferences(this)
         val total = preferences.scoreLevelOne + preferences.scoreLevelTwo + preferences.scoreLevelThree
         binding = ScoreActivityBinding.inflate(layoutInflater)
