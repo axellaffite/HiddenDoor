@@ -23,7 +23,7 @@ class HUD(gameView: GameView) : Entity, Drawable, EntityManager() {
 
     /** Used to display FPS at each frame */
     private var fps = 0f
-    val joystick = createEntity { Joystick(gameView.rect) }
+    val joystick = createEntity { Joystick(gameView.rect,gameView.context ) }
     val controlButtons = createEntity { ControlButtons(gameView) }
 
     override fun onLoad() = Unit
