@@ -45,10 +45,12 @@ class Player(
     var dy = 0f
     var gravity = ROTATION.STRAIGHT
 
-    val isTouchingLevel1 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == TiledMap.LEVEL_1_BLOCK }
-    val isTouchingLevel2 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == TiledMap.LEVEL_2_BLOCK }
-    val isTouchingLevel3 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == TiledMap.LEVEL_3_BLOCK }
-    val isTouchingLevel4 get() = tilemap.collisionTilesIntersecting( rect.copyOfUnderlyingRect).any { it == TiledMap.LEVEL_4_BLOCK }
+    private val collisionRect get() = RectF(rect.left + 5f, rect.top, rect.right - 5f, rect.bottom)
+
+    val isTouchingLevel1 get() = tilemap.collisionTilesIntersecting(collisionRect).any { it == TiledMap.LEVEL_1_BLOCK }
+    val isTouchingLevel2 get() = tilemap.collisionTilesIntersecting(collisionRect).any { it == TiledMap.LEVEL_2_BLOCK }
+    val isTouchingLevel3 get() = tilemap.collisionTilesIntersecting(collisionRect).any { it == TiledMap.LEVEL_3_BLOCK }
+    val isTouchingLevel4 get() = tilemap.collisionTilesIntersecting(collisionRect).any { it == TiledMap.LEVEL_4_BLOCK }
 
     init {
         reset()
@@ -114,9 +116,9 @@ class Player(
 
     private fun isTouchingGround(): Boolean {
         val intersectionRect = if (isUpsideDown) {
-            RectF(rect.left, rect.top-1, rect.right, rect.top)
+            RectF(collisionRect.left, collisionRect.top-1, collisionRect.right, collisionRect.top)
         } else {
-            RectF(rect.left, rect.bottom, rect.right, rect.bottom + 1f)
+            RectF(collisionRect.left, collisionRect.bottom, collisionRect.right, collisionRect.bottom + 1f)
         }
 
         return tilemap.collisionTilesIntersecting(intersectionRect).any { tileValue ->
@@ -125,7 +127,7 @@ class Player(
     }
 
     private fun shouldBeDead(): Boolean {
-        return isDead || tilemap.collisionTilesIntersecting(rect.copyOfUnderlyingRect)
+        return isDead || tilemap.collisionTilesIntersecting(collisionRect)
             .any { it == TiledMap.DEATH_BLOCK }
     }
 
@@ -197,17 +199,19 @@ class Player(
 
     fun updatePosition(isTouchingGround: Boolean, delta: Float) {
         let {
-            val tmp = rect.copyOfUnderlyingRect.apply { offset(0f, dy * delta * SPEED) }
+            val tmp = collisionRect.apply { offset(0f, dy * delta * SPEED) }
             if (tilemap.collisionTilesIntersecting(tmp).any { it == 1 }) {
                 dy = 0f
             } else {
-                rect = ImmutableRect(tmp)
+                rect = ImmutableRect(rect.copyOfUnderlyingRect.apply { offset(0f, dy * delta * SPEED) })
             }
         }
 
-        val tmp = rect.copyOfUnderlyingRect.apply { offset(dx * delta * SPEED, 0f) }
-        if (!tilemap.collisionTilesIntersecting(tmp).any { it == 1 }) {
-            rect = ImmutableRect(tmp)
+        let {
+            val tmp = collisionRect.apply { offset(dx * delta * SPEED, 0f) }
+            if (!tilemap.collisionTilesIntersecting(tmp).any { it == 1 }) {
+                rect = ImmutableRect(rect.copyOfUnderlyingRect.apply { offset(dx * delta * SPEED, 0f) })
+            }
         }
     }
 
