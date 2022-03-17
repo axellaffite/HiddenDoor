@@ -37,7 +37,7 @@ class LevelTwo(
     )
 
     private var isUpsideDown = false
-    private val score = 50f
+    private val score : Int = 50
 
     override fun clean() {
         super.clean()
@@ -58,8 +58,9 @@ class LevelTwo(
         )
 
         if (player.isTouchingLevel3) {
-            var s = score - 5 * player.deathNumber
-            preferences.scoreLevelTwo = if (s >= 0f) s else 0f
+            val s = score - 5 * player.deathNumber
+            println("test bug $s")
+            preferences.scoreLevelTwo = if (s >= 0) s else 0
             goToNextLevel(NAME)
         }
     }

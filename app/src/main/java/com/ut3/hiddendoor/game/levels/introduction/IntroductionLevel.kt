@@ -29,7 +29,7 @@ class IntroductionLevel(
 
     private val luminosityReference = preferences.luminosityReference
     private val threshold = luminosityReference / 2
-    private val score = 25f
+    private val score = 25
 
     private var luminosityLevel = 0f
     private var nightAlpha = 0
@@ -67,8 +67,8 @@ class IntroductionLevel(
         nightAlpha = (rawAlpha * (255f / threshold)).toInt()
 
         if (player.isTouchingLevel2) {
-            var s = score - 5 * player.deathNumber
-            preferences.scoreLevelOne = if (s >= 0f) s else 0f
+            val s = score - 5 * player.deathNumber
+            preferences.scoreLevelOne = if (s >= 0) s else 0
             nextLevelLoaded = true
             goToNextLevel(NAME)
         }
