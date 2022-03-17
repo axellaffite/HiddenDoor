@@ -25,3 +25,7 @@ actions:
     index: 17
     count: 7
     time: 0.1
+  jump:
+    index: 17
+    count : 1
+    time : 0.1
