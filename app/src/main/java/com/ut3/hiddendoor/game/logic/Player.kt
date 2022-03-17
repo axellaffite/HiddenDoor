@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.media.MediaPlayer
-import android.util.Log
 import androidx.core.graphics.withScale
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView

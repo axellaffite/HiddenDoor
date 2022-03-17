@@ -1,6 +1,9 @@
 package com.ut3.hiddendoor.game.drawable
 
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 
 class DrawableRect(override val rect: ImmutableRect) : Drawable {
     override fun drawOnCanvas(bounds: RectF, surfaceHolder: Canvas, paint: Paint) {

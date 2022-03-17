@@ -1,31 +1,24 @@
 package com.ut3.hiddendoor.game.levels
 
-import android.app.Activity
-import android.content.ContextWrapper
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.RectF
 import android.media.MediaPlayer
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.graphics.withSave
-import com.ut3.hiddendoor.MainActivity
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.drawable.TextPopUp
-import com.ut3.hiddendoor.game.drawable.cameras.Camera
 import com.ut3.hiddendoor.game.drawable.cameras.createTrackingCamera
-import com.ut3.hiddendoor.game.drawable.draw
 import com.ut3.hiddendoor.game.drawable.hud.createHud
 import com.ut3.hiddendoor.game.drawable.tiledmap.loadTiledMap
-import com.ut3.hiddendoor.game.levels.introduction.Bridge
-import com.ut3.hiddendoor.game.levels.introduction.Lever
 import com.ut3.hiddendoor.game.logic.EntityManager
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Player
 import com.ut3.hiddendoor.game.utils.Vector2f
-import org.w3c.dom.Text
 
-class HomeLevel(private val gameView: GameView, private val launchNewActivity: (Int) -> Unit) : EntityManager() {
+class HomeLevel(
+    private val gameView: GameView,
+    private val launchNewActivity: (Int) -> Unit
+) : EntityManager() {
 
     companion object {
         const val TILE_MAP_RESOURCE = R.raw.home

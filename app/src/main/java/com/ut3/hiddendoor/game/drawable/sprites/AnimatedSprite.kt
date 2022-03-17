@@ -3,7 +3,6 @@ package com.ut3.hiddendoor.game.drawable.sprites
 import android.content.Context
 import android.graphics.*
 import androidx.annotation.RawRes
-import androidx.core.graphics.withScale
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
 import com.ut3.hiddendoor.game.drawable.Drawable

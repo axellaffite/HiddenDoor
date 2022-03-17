@@ -1,10 +1,8 @@
 package com.ut3.hiddendoor.game.drawable.tiledmap
 
 import android.graphics.*
-import android.graphics.RectF.intersects
 import com.ut3.hiddendoor.game.drawable.Drawable
 import com.ut3.hiddendoor.game.drawable.ImmutableRect
-import com.ut3.hiddendoor.game.utils.Vector2f
 import com.ut3.hiddendoor.game.utils.Vector2i
 
 class Chunk(

@@ -2,11 +2,12 @@ package com.ut3.hiddendoor.game.utils
 
 import android.content.Context
 import androidx.core.content.edit
-import androidx.core.graphics.component1
-import androidx.core.graphics.component2
-import androidx.core.graphics.component3
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.MutableInputState
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.component3
+import kotlin.collections.map
 
 class Preferences(val context: Context) {
 

@@ -1,9 +1,7 @@
 package com.ut3.hiddendoor.game.drawable.tiledmap
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import com.ut3.hiddendoor.game.drawable.loadBitmapKeepSize
-import com.ut3.hiddendoor.game.utils.Vector2f
 import com.ut3.hiddendoor.game.utils.Vector2i
 
 class Tileset(filename: String, private val chunkSize: Int, val tileSize: Int, context: Context) {

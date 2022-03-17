@@ -11,7 +11,6 @@ import com.ut3.hiddendoor.game.drawable.Drawable
 import com.ut3.hiddendoor.game.drawable.ImmutableRect
 import com.ut3.hiddendoor.game.logic.Entity
 import com.ut3.hiddendoor.game.logic.InputState
-import com.ut3.hiddendoor.game.logic.Logic
 import com.ut3.hiddendoor.game.utils.Vector2f
 
 /**

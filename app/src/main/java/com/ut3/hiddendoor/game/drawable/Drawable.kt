@@ -3,11 +3,6 @@ package com.ut3.hiddendoor.game.drawable
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
-import android.graphics.RectF.intersects
-import androidx.core.graphics.transform
-import com.ut3.hiddendoor.game.drawable.tiledmap.TiledMap
-import com.ut3.hiddendoor.game.drawable.tiledmap.Tileset
-import com.ut3.hiddendoor.game.utils.Vector2i
 
 /**
  * Base class used to indicate that a class is drawable on the screen.

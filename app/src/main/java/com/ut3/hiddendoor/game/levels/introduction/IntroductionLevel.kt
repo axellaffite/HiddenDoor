@@ -1,44 +1,36 @@
 package com.ut3.hiddendoor.game.levels.introduction
 
-import android.app.Activity
-import android.graphics.*
-import android.media.MediaPlayer
-import androidx.core.graphics.withSave
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import androidx.core.graphics.withScale
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView
-import com.ut3.hiddendoor.game.drawable.sprites.AnimatedSprite
 import com.ut3.hiddendoor.game.drawable.cameras.createTrackingCamera
-import com.ut3.hiddendoor.game.drawable.hud.createHud
-import com.ut3.hiddendoor.game.drawable.tiledmap.loadTiledMap
+import com.ut3.hiddendoor.game.levels.Level
 import com.ut3.hiddendoor.game.logic.InputState
-import com.ut3.hiddendoor.game.logic.EntityManager
-import com.ut3.hiddendoor.game.logic.Player
-import com.ut3.hiddendoor.game.utils.Preferences
-import com.ut3.hiddendoor.game.utils.Vector2i
-import java.util.*
-import kotlin.concurrent.timerTask
-import kotlin.system.measureTimeMillis
 
 
-class IntroductionLevel(private val gameView: GameView, private val goToNextLevel: (String) -> Unit) : EntityManager() {
+class IntroductionLevel(
+    gameView: GameView,
+    goToNextLevel: (String) -> Unit
+) : Level(
+    gameView = gameView,
+    soundRes = R.raw.ambiance_sound,
+    tilemapResource = TILE_MAP_RESOURCE,
+    goToNextLevel = goToNextLevel
+) {
 
     companion object {
         const val TILE_MAP_RESOURCE = R.raw.testmap
         const val NAME = "introduction"
     }
 
-    private val preferences = Preferences(gameView.context)
     private val luminosityReference = preferences.luminosityReference
     private val threshold = luminosityReference / 2
 
-    private lateinit var sound: MediaPlayer
     private var luminosityLevel = 0f
     private var nightAlpha = 0
-
-    private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
-    private val hud = createHud(gameView) { controlButtons.isBVisible = false }
-    private val player = createEntity { Player(gameView, tilemap, hud) { setPosition(tilemap.initialPlayerPosition, tilemap.tileSize) } }
 
     private val bridge = createEntity {
         Bridge(x = 18, y = 29, blockCount = 8, tilemap = tilemap, player = player)
@@ -55,18 +47,6 @@ class IntroductionLevel(private val gameView: GameView, private val goToNextLeve
         gamePosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),
         track = player::center
     )
-
-    override fun onLoad() {
-        sound = MediaPlayer.create(gameView.context, R.raw.ambiance_sound).apply {
-            isLooping = true
-            start()
-        }
-    }
-
-    override fun clean() {
-        super.clean()
-        sound.stop()
-    }
 
     override fun onSaveState() {
         TODO("save state of the level")

@@ -2,9 +2,7 @@ package com.ut3.hiddendoor.game.drawable.cameras
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.PorterDuff
 import android.graphics.RectF
-import androidx.core.graphics.scaleMatrix
 import androidx.core.graphics.translationMatrix
 import com.ut3.hiddendoor.game.drawable.Drawable
 import com.ut3.hiddendoor.game.drawable.contains

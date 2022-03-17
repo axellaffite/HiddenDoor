@@ -1,9 +1,6 @@
 package com.ut3.hiddendoor.game.logic
 
 import android.app.Activity
-import android.content.Context
-import android.hardware.Sensor
-import android.hardware.SensorManager
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.levels.LevelFactory
 import com.ut3.hiddendoor.game.utils.Preferences

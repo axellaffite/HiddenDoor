@@ -3,21 +3,25 @@ package com.ut3.hiddendoor.game.levels.leveltwo
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import android.media.MediaPlayer
 import androidx.core.graphics.withSave
 import com.ut3.hiddendoor.R
 import com.ut3.hiddendoor.game.GameView
 import com.ut3.hiddendoor.game.drawable.cameras.createTrackingCamera
-import com.ut3.hiddendoor.game.drawable.hud.HUD
-import com.ut3.hiddendoor.game.drawable.hud.createHud
-import com.ut3.hiddendoor.game.drawable.tiledmap.loadTiledMap
-import com.ut3.hiddendoor.game.logic.EntityManager
+import com.ut3.hiddendoor.game.levels.Level
 import com.ut3.hiddendoor.game.logic.InputState
 import com.ut3.hiddendoor.game.logic.Player
 import com.ut3.hiddendoor.game.logic.isUpsideDown
 import com.ut3.hiddendoor.game.utils.preferences
 
-class LevelTwo(private val gameView: GameView, private val goToNextLevel: (String) -> Unit) : EntityManager() {
+class LevelTwo(
+    gameView: GameView,
+    goToNextLevel: (String) -> Unit
+) : Level(
+    gameView = gameView,
+    soundRes = R.raw.ambiance_sound,
+    tilemapResource = TILE_MAP_RESOURCE,
+    goToNextLevel = goToNextLevel
+) {
 
     companion object {
         const val NAME = "level2"
@@ -26,10 +30,6 @@ class LevelTwo(private val gameView: GameView, private val goToNextLevel: (Strin
 
     private val angleReference = preferences(gameView.context) { angleReference }
 
-    private val tilemap = gameView.context.loadTiledMap(TILE_MAP_RESOURCE)
-    private lateinit var sound : MediaPlayer
-    private val hud : HUD = createHud(gameView)
-    private val player = createEntity { Player(gameView, tilemap, hud) { setPosition(tilemap.initialPlayerPosition, tilemap.tileSize) } }
     private val camera = createTrackingCamera(
         screenPosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),
         gamePosition = RectF(0f, 0f, gameView.width.toFloat(), gameView.height.toFloat()),
@@ -37,13 +37,6 @@ class LevelTwo(private val gameView: GameView, private val goToNextLevel: (Strin
     )
 
     private var isUpsideDown = false
-
-    override fun onLoad() {
-        sound = MediaPlayer.create(gameView.context, R.raw.ambiance_sound).apply {
-            isLooping = true
-            start()
-        }
-    }
 
     override fun clean() {
         super.clean()
@@ -59,11 +52,10 @@ class LevelTwo(private val gameView: GameView, private val goToNextLevel: (Strin
         super.update(delta)
 
         player.flipUpsideDown(isUpsideDown)
-        if (isUpsideDown) {
-            player.changeRotation(Player.ROTATION.REVERSED)
-        } else {
-            player.changeRotation(Player.ROTATION.STRAIGHT)
-        }
+        player.changeRotation(
+            if (isUpsideDown) { Player.ROTATION.REVERSED }
+            else { Player.ROTATION.STRAIGHT }
+        )
 
         if (player.isTouchingLevel3) {
             goToNextLevel(NAME)
