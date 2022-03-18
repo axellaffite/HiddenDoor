@@ -93,7 +93,6 @@ class HiddenKeyLevel(
     private fun updateScore() {
         val penalty =  (System.currentTimeMillis() - startTime) / 1000 / 10
         val s = score - 2 * penalty.toInt()
-        println("ici $s")
         preferences.scoreLevelThree = if (s >= 0) s else 0
     }
 }
